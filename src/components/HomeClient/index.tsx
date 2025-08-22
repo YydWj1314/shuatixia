@@ -14,10 +14,15 @@ export default function HomeClient({ items }: { items: BankGroups }) {
   return (
     <List
       grid={{ gutter: 36, xs: 1, sm: 1, md: 1, lg: 2 }}
+      style={{
+        maxWidth: 1188,
+        margin: '0 auto',
+        paddingInline: 18, // ✅ = gutter/2，兜住 .ant-row 的负外边距
+      }}
       dataSource={groups}
       rowKey={([groupKey]) => groupKey}
       renderItem={([groupKey, banks]) => {
-        // 可选：拿第一个有图片的 bank 作为封面
+        // TODO 可选：拿第一个有图片的 bank 作为封面
         const coverSrc = banks.find((b) => b.picture)?.picture ?? null;
 
         return (
@@ -25,7 +30,7 @@ export default function HomeClient({ items }: { items: BankGroups }) {
             <Card
               hoverable
               title={groupKey}
-              style={{ width: '100%', minWidth: 320, maxWidth: 480 }}
+              style={{ width: '100%', minWidth: 360, maxWidth: 480 }}
               cover={
                 coverSrc ? (
                   //TODO

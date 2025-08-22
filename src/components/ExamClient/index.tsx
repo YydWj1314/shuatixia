@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Question } from '@/types/Exam';
 import { Layout, Row, Col, Card, Space, Button, Slider, Badge } from 'antd';
+import { StarOutlined } from '@ant-design/icons';
 import type { CSSProperties } from 'react';
 import './index.css';
 
@@ -50,7 +51,7 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
   const curr = questions[qi];
 
   const toggleMark = () => {
-    const id = curr.id;
+    const id = Number(curr.id);
     setMarks((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
@@ -59,7 +60,7 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
   };
 
   const markAnswered = () => {
-    const id = curr.id;
+    const id = Number(curr.id);
     setAnswered((prev) => {
       const next = new Set(prev);
       next.add(id);
@@ -90,15 +91,13 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
               gap: 16,
             }}
           >
-            <span>字号</span>
-            <Slider
-              min={14}
-              max={20}
-              style={{ width: 160 }}
-              value={fontSize}
-              onChange={setFontSize}
-            />
-            <span>自动下一题</span>
+            <Button
+              icon={<StarOutlined />}
+              className="content-button-previous"
+              onClick={() => setQi((prev) => Math.max(prev - 1, 0))}
+            >
+              收藏题库
+            </Button>
             {/* 需要时加 <Switch checked={autoNext} onChange={setAutoNext} /> */}
           </div>
         </div>
@@ -115,20 +114,23 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
                   {curr.content}
                 </div>
 
-                <Button
-                  className={[
-                    'content-button-answer',
-                    isAnswerHidden && 'content-button-answer--show',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                  onClick={() => {
-                    setIsAnswerHidden(false);
-                    markAnswered(); // 点击显示答案即标记为“已答”
-                  }}
-                >
-                  👉 Show Answer
-                </Button>
+                <div className="content-show-answer">
+                  <Button
+                    style={{ width: 300 }}
+                    className={[
+                      'content-button-answer',
+                      isAnswerHidden && 'content-button-answer--show',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    onClick={() => {
+                      setIsAnswerHidden(false);
+                      markAnswered(); // 点击显示答案即标记为“answered”
+                    }}
+                  >
+                    👉 Show Answer
+                  </Button>
+                </div>
 
                 <div className="content-bottom">
                   <Button
@@ -148,7 +150,7 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
                   </Button>
 
                   <Button className="content-button-mark" onClick={toggleMark}>
-                    {marks.has(curr.id) ? 'Unmark' : 'Mark'}
+                    {marks.has(Number(curr.id)) ? 'Unmark' : 'Mark'}
                   </Button>
                 </div>
 
@@ -180,8 +182,8 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
                   {questions.map((q, index) => {
                     const props = getBtnProps({
                       isCurrent: index === qi,
-                      isMarked: marks.has(q.id),
-                      isDone: answered.has(q.id),
+                      isMarked: marks.has(Number(q.id)),
+                      isDone: answered.has(Number(q.id)),
                     });
 
                     return (

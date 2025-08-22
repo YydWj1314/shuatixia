@@ -10,6 +10,7 @@ export default async function Home({ params }: { params: { bankId: string } }) {
   const questions = await getQuestionsByBankId(bankId);
   const bank = await getBankById(bankId);
 
+  // 为每一个 question添加bank 标签
   const newQuestions: QuestionWithBank[] = questions.map((item) => ({
     ...item,
     bank: bank?.topic ?? '', // 防空

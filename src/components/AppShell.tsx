@@ -3,7 +3,7 @@
 import { useEffect, useCallback } from 'react';
 import { Provider } from 'react-redux';
 import store from '@/stores';
-import BasicLayout from '@/layouts/BasicLayout';
+import BasicLayout from '@/components/GlobalLayout';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   // 你原来的 InitLayout 逻辑放这

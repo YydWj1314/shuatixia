@@ -9,6 +9,7 @@
   height: 500px;
   display: flex;
   flex-direction: column;
+
   gap: 24px;
 }
 
@@ -22,6 +23,11 @@
   overflow: auto; /* 题干过长滚动而不是挤压其它区域 */
   min-height: 120px; /* 可选：给题干一个下限，减少抖动 */
   max-height: 200px;
+}
+
+.content-show-answer {
+  display: flex;
+  justify-content: center;
 }
 
 /* 答案区一直占位，只切可见性 */
