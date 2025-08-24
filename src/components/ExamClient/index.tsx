@@ -5,7 +5,9 @@ import { Question } from '@/types/Exam';
 import { Layout, Row, Col, Card, Space, Button, Slider, Badge } from 'antd';
 import { StarOutlined } from '@ant-design/icons';
 import type { CSSProperties } from 'react';
+import { useParams } from 'next/navigation';
 import './index.css';
+import { useBankFavorites } from '@/app/hooks/useBankFavorites';
 
 const { Header, Content } = Layout;
 
@@ -38,10 +40,16 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
   const [qi, setQi] = useState(0); // 当前题 index
   const [isAnswerHidden, setIsAnswerHidden] = useState(true);
   const [fontSize, setFontSize] = useState(14);
-
-  // 用题目 id 存储，避免顺序变化错位
   const [marks, setMarks] = useState<Set<number>>(new Set());
   const [answered, setAnswered] = useState<Set<number>>(new Set());
+
+  // from router: exams/[bankId]
+  const params = useParams(); // to get path parameters
+  const bankId = Number(params.bankId);
+
+  // swr hooks
+  const { isFavorited, isLoading, isValidating, toggleFavorite } =
+    useBankFavorites(bankId);
 
   // 切题时自动隐藏答案
   useEffect(() => {
@@ -59,6 +67,7 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
     });
   };
 
+  // mark answer when click mark button
   const markAnswered = () => {
     const id = Number(curr.id);
     setAnswered((prev) => {
@@ -72,7 +81,7 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
     <Layout style={{ minHeight: '100vh' }}>
       {/* 顶部 */}
       <Header style={{ background: '#fff', borderBottom: '1px solid #eee' }}>
-        <div
+        <Row
           style={{
             maxWidth: 1200,
             margin: '0 auto',
@@ -81,26 +90,19 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
             gap: 16,
           }}
         >
-          <div style={{ fontWeight: 700 }}>{curr.bank}</div>
+          <Col style={{ fontWeight: 700 }}>{curr.bank}</Col>
 
-          <div
-            style={{
-              marginLeft: 'auto',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 16,
-            }}
-          >
+          <Col>
             <Button
+              className="content-button-favorite  "
               icon={<StarOutlined />}
-              className="content-button-previous"
-              onClick={() => setQi((prev) => Math.max(prev - 1, 0))}
+              type={isFavorited ? 'primary' : 'default'}
+              onClick={toggleFavorite}
             >
-              收藏题库
+              {isFavorited ? 'unFavorite' : 'Favorite'}
             </Button>
-            {/* 需要时加 <Switch checked={autoNext} onChange={setAutoNext} /> */}
-          </div>
-        </div>
+          </Col>
+        </Row>
       </Header>
 
       {/* 内容区 */}
@@ -110,11 +112,11 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
             {/* 左侧：题目 + 答案 */}
             <Col xs={24} md={16}>
               <Card className="content-main-card">
-                <div className="content-question" style={{ fontSize }}>
+                <Col className="content-question" style={{ fontSize }}>
                   {curr.content}
-                </div>
+                </Col>
 
-                <div className="content-show-answer">
+                <Row className="content-show-answer">
                   <Button
                     style={{ width: 300 }}
                     className={[
@@ -130,38 +132,48 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
                   >
                     👉 Show Answer
                   </Button>
-                </div>
+                </Row>
 
-                <div className="content-bottom">
-                  <Button
-                    disabled={qi <= 0}
-                    className="content-button-previous"
-                    onClick={() => setQi((prev) => Math.max(prev - 1, 0))}
-                  >
-                    Previous
-                  </Button>
+                <Row className="content-bottom">
+                  <Col>
+                    <Button
+                      disabled={qi <= 0}
+                      className="content-button-previous"
+                      onClick={() => setQi((prev) => Math.max(prev - 1, 0))}
+                    >
+                      Previous
+                    </Button>
+                  </Col>
 
-                  <Button
-                    disabled={qi >= qn - 1}
-                    className="content-button-next"
-                    onClick={() => setQi((prev) => Math.min(prev + 1, qn - 1))}
-                  >
-                    Next {qi}
-                  </Button>
-
-                  <Button className="content-button-mark" onClick={toggleMark}>
-                    {marks.has(Number(curr.id)) ? 'Unmark' : 'Mark'}
-                  </Button>
-                </div>
+                  <Row>
+                    <Button
+                      disabled={qi >= qn - 1}
+                      className="content-button-next"
+                      onClick={() =>
+                        setQi((prev) => Math.min(prev + 1, qn - 1))
+                      }
+                    >
+                      Next {qi}
+                    </Button>
+                  </Row>
+                  <Row>
+                    <Button
+                      className="content-button-mark"
+                      onClick={toggleMark}
+                    >
+                      {marks.has(Number(curr.id)) ? 'Unmark' : 'Mark'}
+                    </Button>
+                  </Row>
+                </Row>
 
                 {/* 答案 */}
-                <div
+                <Row
                   className={`content-answer ${isAnswerHidden ? 'is-hidden' : ''}`}
                 >
-                  <div className="content-answer__text" style={{ fontSize }}>
+                  <Col className="content-answer__text" style={{ fontSize }}>
                     {curr.answer}
-                  </div>
-                </div>
+                  </Col>
+                </Row>
               </Card>
             </Col>
 

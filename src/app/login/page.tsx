@@ -23,7 +23,6 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
       });
-      console.log('[app/login/page]: ', values); //TODO
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {

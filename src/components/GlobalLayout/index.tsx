@@ -5,7 +5,17 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import type { MenuProps } from 'antd';
-import { Layout, Menu, Dropdown, Button, Input, Space, theme } from 'antd';
+import {
+  Layout,
+  Menu,
+  Dropdown,
+  Row,
+  Col,
+  Button,
+  Input,
+  Space,
+  theme,
+} from 'antd';
 import {
   UserOutlined,
   LogoutOutlined,
@@ -27,8 +37,8 @@ type Props = { children: React.ReactNode };
 
 const menus = [
   { key: '/', label: <Link href="/">首页</Link> },
+  { key: '/banks', label: <Link href="/banks">我的题库</Link> },
   { key: '/exam', label: <Link href="/exam">刷题</Link> },
-  { key: '/banks', label: <Link href="/banks">题库</Link> },
 ];
 
 export default function BasicLayout({ children }: Props) {
@@ -41,18 +51,19 @@ export default function BasicLayout({ children }: Props) {
   // 拉 session 用户
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const res = await fetch('/api/auth/me', {
+        credentials: 'include',
+      });
       if (!res.ok) return setUser(null);
       const data = await res.json().catch(() => ({}));
       setUser(data?.user ?? null);
-      console.log(data);
     } catch {
       setUser(null);
     }
   }, []);
 
   useEffect(() => {
-    refresh(); // 路由变化时拉 /api/auth/me
+    refresh(); // 路由变化时拉 /api/auth/userMe
   }, [pathname, refresh]);
 
   // 登录后通用菜单
@@ -70,10 +81,9 @@ export default function BasicLayout({ children }: Props) {
       label: 'Logout',
       danger: true,
       onClick: async () => {
-        console.log('log out async function is activetd ');
         await fetch('/api/auth/logout', {
           // logout api
-          method: 'POST',
+          method: 'DELETE',
           credentials: 'include',
         });
         setUser(null);
@@ -91,13 +101,16 @@ export default function BasicLayout({ children }: Props) {
 
   // 顶部右侧搜索输入
   const SearchInput = () => (
-    <div
+    <Row
       aria-hidden
       onMouseDown={(e) => {
         e.stopPropagation();
         e.preventDefault();
       }}
-      style={{ ...s.searchBox, border: `1px solid ${token.colorBorder}` }}
+      style={{
+        ...s.searchBox,
+        border: `1px solid ${token.colorBorder}`,
+      }}
     >
       <Input
         style={s.searchInput}
@@ -105,7 +118,7 @@ export default function BasicLayout({ children }: Props) {
         placeholder="Search"
         variant="borderless"
       />
-    </div>
+    </Row>
   );
 
   return (
@@ -128,30 +141,35 @@ export default function BasicLayout({ children }: Props) {
         />
 
         {/* 右：搜索 + 登录/头像 */}
-        <Space size="middle">
-          <SearchInput />
-          {!user || !user.role ? (
-            <Button
-              type="primary"
-              shape="round"
-              icon={<UserOutlined />}
-              onClick={() => router.push('/login')}
-            >
-              Login
-            </Button>
-          ) : user.role === 'admin' ? (
-            <Dropdown.Button
-              menu={{ items: adminItems }}
-              icon={<DownOutlined />}
-            >
-              {user.username ?? 'Admin'}
-            </Dropdown.Button>
-          ) : (
-            <Dropdown.Button menu={{ items: commonItems }}>
-              <Space>{user.username ?? '无名侠客'}</Space>
-            </Dropdown.Button>
-          )}
-        </Space>
+        <Row gutter={[12, 12]} align="middle" wrap={false}>
+          <Col>
+            <SearchInput /> {/* 搜索框内部仍是 width:100% */}
+          </Col>
+
+          <Col>
+            {!user || !user.role ? (
+              <Button
+                type="primary"
+                shape="round"
+                icon={<UserOutlined />}
+                onClick={() => router.push('/login')}
+              >
+                Login
+              </Button>
+            ) : user.role === 'admin' ? (
+              <Dropdown.Button
+                menu={{ items: adminItems }}
+                icon={<DownOutlined />}
+              >
+                {user.username ?? 'Admin'}
+              </Dropdown.Button>
+            ) : (
+              <Dropdown.Button menu={{ items: commonItems }}>
+                <Space>{user.username ?? '无名侠客'}</Space>
+              </Dropdown.Button>
+            )}
+          </Col>
+        </Row>
       </Header>
 
       {/* 内容区（自适应撑开） */}

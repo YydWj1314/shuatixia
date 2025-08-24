@@ -1,6 +1,7 @@
 import './globals.css';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import AppShell from '../components/AppShell';
+import SWRProvider from '@/components/SWRProvider';
 
 // server side
 export default function RootLayout({
@@ -12,7 +13,11 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AntdRegistry>
-          <AppShell>{children}</AppShell>
+          {' '}
+          {/* Server 组件在外层 */}
+          <SWRProvider>
+            <AppShell>{children}</AppShell>
+          </SWRProvider>
         </AntdRegistry>
       </body>
     </html>

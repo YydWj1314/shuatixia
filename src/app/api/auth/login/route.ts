@@ -1,12 +1,15 @@
 // backend api
-export const runtime = 'nodejs'; // 确保不是 Edge
-export const dynamic = 'force-dynamic';
+// export const runtime = 'nodejs'; // 确保不是 Edge
+// export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { CreateAndInsertSession, StoreSession } from '@/libs/session';
-
+import {
+  CreateSession,
+  StoreSessionInResponse,
+} from '@/libs/utils/sessionUtils';
 import { sbAdmin } from '@/libs/sbAdmin';
+import { insertSession } from '@/libs/db_session';
 
 export async function POST(req: Request) {
   try {
@@ -36,17 +39,19 @@ export async function POST(req: Request) {
 
     // Check password
     const ok = await bcrypt.compare(password, user.user_password);
+    // login failed
     if (!ok) {
       return NextResponse.json({ error: '密码错误' }, { status: 401 });
     }
 
-    // 登录成功：创建会话 Cookie
+    // Login successfully, create cookie session
     const res = NextResponse.json({ ok: true });
     // session 插入 db 获取 id
-    const { sid } = await CreateAndInsertSession(sbAdmin, user.id);
-    await StoreSession(sid); // 在响应里设置 HttpOnly cookie
-
-    // TODO inserSession
+    const { sid, expiresAt } = CreateSession();
+    // store session into response
+    await StoreSessionInResponse(sid);
+    // insert session into db
+    const ssid = insertSession(sbAdmin, sid, user.id, expiresAt);
 
     return res;
   } catch (e) {

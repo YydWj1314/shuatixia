@@ -1,6 +1,11 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
+/**
+ * To access Supabase from Server Components, Server Actions,
+ *  and Route Handlers, which run only on the server.
+ * @returns
+ */
 export async function createClient() {
   const cookieStore = await cookies();
 
