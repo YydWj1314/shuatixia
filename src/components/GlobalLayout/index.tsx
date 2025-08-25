@@ -37,12 +37,12 @@ type Props = { children: React.ReactNode };
 
 const menus = [
   { key: '/', label: <Link href="/">首页</Link> },
-  { key: '/banks', label: <Link href="/banks">我的题库</Link> },
+  { key: '/my-banks', label: <Link href="/my-banks">我的题库</Link> },
   { key: '/exam', label: <Link href="/exam">刷题</Link> },
 ];
 
 export default function BasicLayout({ children }: Props) {
-  const pathname = usePathname();
+  const pathname = usePathname(); // get current url
   const router = useRouter();
   const [user, setUser] = useState<User>(null);
   const { token } = theme.useToken();
@@ -179,7 +179,7 @@ export default function BasicLayout({ children }: Props) {
 
       {/* 底部（贴底） */}
       <Footer style={s.footer}>
-        <div>© {year} Made with love</div>
+        <div>© {year} Made with curiosity, patience & love</div>
         <div>by yyd</div>
       </Footer>
     </Layout>

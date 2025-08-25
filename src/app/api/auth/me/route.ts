@@ -25,8 +25,6 @@ type MeRow = {
 export async function GET() {
   const sid = cookies().get(SESSION_COOKIE_NAME)?.value;
   if (!sid) return NextResponse.json({ ok: false }, { status: 401 });
-  console.log(sid);
-  const now = new Date().toISOString();
 
   const { data, error } = await sbAdmin
     .from('sessions')
@@ -42,7 +40,7 @@ export async function GET() {
   }
 
   const u = data.user;
-  console.log(u);
+
   return NextResponse.json({
     ok: true,
     user: {

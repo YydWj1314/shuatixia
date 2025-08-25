@@ -13,7 +13,6 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AntdRegistry>
-          {' '}
           {/* Server 组件在外层 */}
           <SWRProvider>
             <AppShell>{children}</AppShell>

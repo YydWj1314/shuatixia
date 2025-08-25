@@ -2,7 +2,6 @@
 .content-wrapper {
   max-width: 1200;
   margin: 16px auto;
-  padding: 0 16px;
 }
 
 .content-main-card .ant-card-body {
@@ -10,11 +9,6 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-.content-main-card {
-  display: flex;
-  flex-direction: column;
 }
 
 .content-question {
@@ -40,12 +34,4 @@
   opacity: 0;
   visibility: hidden; /* 占位但不可见 */
   pointer-events: none;
-}
-
-/* 底部按钮区固定在中间与答案之间 */
-.content-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
 }

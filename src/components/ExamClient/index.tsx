@@ -2,8 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { Question } from '@/types/Exam';
-import { Layout, Row, Col, Card, Space, Button, Slider, Badge } from 'antd';
-import { StarOutlined } from '@ant-design/icons';
+import {
+  Layout,
+  Row,
+  Col,
+  Card,
+  Space,
+  Button,
+  Slider,
+  Badge,
+  Divider,
+  Flex,
+} from 'antd';
+import { StarOutlined, StarFilled } from '@ant-design/icons';
 import type { CSSProperties } from 'react';
 import { useParams } from 'next/navigation';
 import './index.css';
@@ -14,6 +25,7 @@ const { Header, Content } = Layout;
 type BtnType = 'primary' | 'default';
 type BtnProps = { type: BtnType; danger: boolean; style?: CSSProperties };
 
+// 状态与单一事实源（SOT）
 // 统一计算按钮样式，解决颜色覆盖：当前(蓝) > 标记(红) > 已答(绿) > 默认(灰)
 function getBtnProps(opts: {
   isCurrent: boolean;
@@ -23,7 +35,7 @@ function getBtnProps(opts: {
   const { isCurrent, isMarked, isDone } = opts;
 
   const doneStyle: CSSProperties = {
-    backgroundColor: '#52c41a', // 经典绿色
+    backgroundColor: '#52c41a',
     color: '#fff',
     borderColor: '#52c41a',
   };
@@ -33,6 +45,8 @@ function getBtnProps(opts: {
   if (isDone) return { type: 'default', danger: false, style: doneStyle };
   return { type: 'default', danger: false };
 }
+
+function onToggleSave() {}
 
 export default function ExamClient({ questions }: { questions: Question[] }) {
   const qn = questions.length;
@@ -51,7 +65,7 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
   const { isFavorited, isLoading, isValidating, toggleFavorite } =
     useBankFavorites(bankId);
 
-  // 切题时自动隐藏答案
+  // hide anwer when switch question
   useEffect(() => {
     setIsAnswerHidden(true);
   }, [qi]);
@@ -80,14 +94,21 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       {/* 顶部 */}
-      <Header style={{ background: '#fff', borderBottom: '1px solid #eee' }}>
+      <Header
+        style={{
+          background: '#fff',
+          padding: '0 20px',
+          borderBottom: '1px solid #eee',
+        }}
+      >
         <Row
           style={{
-            maxWidth: 1200,
+            maxWidth: 1400,
             margin: '0 auto',
             display: 'flex',
             alignItems: 'center',
             gap: 16,
+            width: '100%',
           }}
         >
           <Col style={{ fontWeight: 700 }}>{curr.bank}</Col>
@@ -99,7 +120,7 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
               type={isFavorited ? 'primary' : 'default'}
               onClick={toggleFavorite}
             >
-              {isFavorited ? 'unFavorite' : 'Favorite'}
+              {isFavorited ? 'Unfavorite' : 'Favorite'}
             </Button>
           </Col>
         </Row>
@@ -112,19 +133,26 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
             {/* 左侧：题目 + 答案 */}
             <Col xs={24} md={16}>
               <Card className="content-main-card">
-                <Col className="content-question" style={{ fontSize }}>
+                <Row
+                  className="content-question"
+                  style={{
+                    width: '100%',
+                    alignContent: 'start',
+                    fontSize,
+                  }}
+                >
                   {curr.content}
-                </Col>
+                </Row>
 
                 <Row className="content-show-answer">
                   <Button
-                    style={{ width: 300 }}
                     className={[
                       'content-button-answer',
                       isAnswerHidden && 'content-button-answer--show',
                     ]
                       .filter(Boolean)
                       .join(' ')}
+                    type="primary"
                     onClick={() => {
                       setIsAnswerHidden(false);
                       markAnswered(); // 点击显示答案即标记为“answered”
@@ -134,45 +162,66 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
                   </Button>
                 </Row>
 
-                <Row className="content-bottom">
-                  <Col>
-                    <Button
-                      disabled={qi <= 0}
-                      className="content-button-previous"
-                      onClick={() => setQi((prev) => Math.max(prev - 1, 0))}
-                    >
-                      Previous
-                    </Button>
+                <Row className="content-buttons">
+                  <Col
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      width: '100%',
+                    }}
+                  >
+                    <Space>
+                      <Button
+                        disabled={qi <= 0}
+                        className="content-button-previous"
+                        onClick={() => setQi((prev) => Math.max(prev - 1, 0))}
+                      >
+                        Previous
+                      </Button>
+                      <Button
+                        disabled={qi >= qn - 1}
+                        className="content-button-next"
+                        onClick={() =>
+                          setQi((prev) => Math.min(prev + 1, qn - 1))
+                        }
+                      >
+                        Next
+                      </Button>
+                      <Button
+                        className="content-button-mark"
+                        type={
+                          marks.has(Number(curr.id)) ? 'primary' : 'default'
+                        }
+                        onClick={toggleMark}
+                      >
+                        {marks.has(Number(curr.id)) ? 'Unmark ' : 'Mark'}
+                      </Button>
+                    </Space>
+                    <Space>
+                      <Button
+                        type="text"
+                        size="small"
+                        // icon={isSaved ? <StarFilled /> : <StarOutlined />}
+                        icon={<StarOutlined />}
+                        onClick={onToggleSave}
+                      >
+                        Save Question
+                      </Button>
+                    </Space>
                   </Col>
 
-                  <Row>
-                    <Button
-                      disabled={qi >= qn - 1}
-                      className="content-button-next"
-                      onClick={() =>
-                        setQi((prev) => Math.min(prev + 1, qn - 1))
-                      }
-                    >
-                      Next {qi}
-                    </Button>
-                  </Row>
-                  <Row>
-                    <Button
-                      className="content-button-mark"
-                      onClick={toggleMark}
-                    >
-                      {marks.has(Number(curr.id)) ? 'Unmark' : 'Mark'}
-                    </Button>
-                  </Row>
+                  <Row></Row>
                 </Row>
 
                 {/* 答案 */}
                 <Row
                   className={`content-answer ${isAnswerHidden ? 'is-hidden' : ''}`}
+                  justify="start" // 横向靠左
+                  align="middle" // 垂直居中
+                  style={{ fontSize }}
                 >
-                  <Col className="content-answer__text" style={{ fontSize }}>
-                    {curr.answer}
-                  </Col>
+                  <div className="content-answer-text">{curr.answer}</div>
                 </Row>
               </Card>
             </Col>
@@ -212,15 +261,13 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
                 </div>
               </Card>
 
-              <Card title="设置">
+              <Card title="Settings">
                 <Space direction="vertical" style={{ width: '100%' }}>
                   <div
                     style={{ display: 'flex', justifyContent: 'space-between' }}
-                  >
-                    <span>选后自动下一题</span>
-                  </div>
+                  ></div>
                   <div>
-                    <div style={{ marginBottom: 8 }}>字号</div>
+                    <div style={{ marginBottom: 8 }}>Font size</div>
                     <Slider
                       min={14}
                       max={20}

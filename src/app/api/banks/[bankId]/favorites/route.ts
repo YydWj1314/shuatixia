@@ -21,7 +21,7 @@ import {
 } from '@/libs/db_bank_favorites';
 import { getUserIdBySession } from '@/libs/db_session';
 import { SESSION_COOKIE_NAME } from '@/config/constants';
-import { sbAdmin } from '@/libs/sbAdmin';
+
 /**
  * POST:
  * Receive request and call insert insertBankFavorites api
