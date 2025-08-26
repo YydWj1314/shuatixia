@@ -1,6 +1,6 @@
 // app/test/libs-test/session/page.tsx
 import { SESSION_COOKIE_NAME } from '@/config/constants';
-import { getUserIdBySession } from '@/libs/db_session';
+import { getUserIdBySession } from '@/libs/db_sessions';
 import { cookies } from 'next/headers';
 
 // ✅ 这是一个 Server Component

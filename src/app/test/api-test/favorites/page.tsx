@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { SESSION_COOKIE_NAME } from '@/config/constants';
-import { getUserIdBySession } from '@/libs/db_session';
+import { getUserIdBySession } from '@/libs/db_sessions';
 import { getFavoriteBanksByUserId } from '@/libs/db_bank_favorites';
 
 export async function GET() {

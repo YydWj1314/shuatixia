@@ -1,11 +1,14 @@
 // app/api/auth/logout/route.ts
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { deleteSessionBySid } from '@/libs/db_session';
+import { deleteSessionBySid } from '@/libs/db_sessions';
 import { SESSION_COOKIE_NAME } from '@/config/constants';
+import { logCall } from '@/libs/utils/logUtils';
 
 export async function DELETE() {
   try {
+    logCall();
+
     const sid = cookies().get(SESSION_COOKIE_NAME)?.value ?? null;
     // Authentication
     if (!sid) {
@@ -23,7 +26,7 @@ export async function DELETE() {
     res.cookies.delete(SESSION_COOKIE_NAME);
     return res;
   } catch (e: any) {
-    console.error('[api/auth/logout][DELETE]: ', e?.message || e);
+    console.error(e);
     return NextResponse.json(
       { ok: false, error: 'Logout failed' },
       { status: 500 },

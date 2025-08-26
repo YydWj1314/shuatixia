@@ -28,13 +28,14 @@
 
 import { createClient } from '@/libs/utils/supabase/app_router/server';
 import { Bank } from '@/types/Banks';
-
+import { logCall } from './utils/logUtils';
 /**
  *
  * @param limit
  * @returns
  */
 export async function getAllBanks(limit = 12): Promise<Bank[]> {
+  logCall();
   const sb = await createClient();
   const { data, error } = await sb
     .from('question_banks')
@@ -55,6 +56,7 @@ export async function getAllBanks(limit = 12): Promise<Bank[]> {
  * @returns
  */
 export async function getBankById(id: number | string) {
+  logCall();
   const sb = await createClient();
   const { data, error } = await sb
     .from('question_banks')
@@ -79,6 +81,7 @@ export async function getBanksByTopic(
   topic: string,
   limit = 20,
 ): Promise<Bank[]> {
+  logCall();
   const sb = await createClient();
   const { data, error } = await sb
     .from('question_banks')

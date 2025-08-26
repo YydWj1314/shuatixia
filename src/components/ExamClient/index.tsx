@@ -111,7 +111,7 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
             width: '100%',
           }}
         >
-          <Col style={{ fontWeight: 700 }}>{curr.bank}</Col>
+          <Col style={{ fontSize: 18, fontWeight: 600 }}>{curr.bank}</Col>
 
           <Col>
             <Button

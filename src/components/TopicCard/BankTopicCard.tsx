@@ -1,10 +1,11 @@
 'use client';
 
 import { Bank } from '@/types/Banks';
-import { Card, Typography, Checkbox, Space } from 'antd';
+import { Button, Card, Checkbox, Popconfirm, message } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useState } from 'react';
-import type { CheckboxProps } from 'antd';
+import { useRouter } from 'next/navigation';
 
 export default function BankTopicCard({
   topic, // groupKey
@@ -15,46 +16,112 @@ export default function BankTopicCard({
   banks: Bank[];
   isEditMode: boolean;
 }) {
-  const [selectedItems, setselectedItems] = useState<Set<number>>(new Set());
+  const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const total = banks.length;
   const selectedCount = selectedItems.size;
   const isAllChecked = total > 0 && selectedCount === total;
   const isIndeterminate = selectedCount > 0 && selectedCount < total;
+  const router = useRouter();
 
-  // checkbox select one
+  // Checkbox select one
   function selectOne(id: number) {
     const newSet = new Set(selectedItems);
     newSet.has(id) ? newSet.delete(id) : newSet.add(id);
-    setselectedItems(newSet);
+    setSelectedItems(newSet);
     return;
   }
 
-  // 顶部全选/全不选
-  function selectAll(checked: boolean) {
-    if (checked) {
-      setselectedItems(new Set(banks.map((b) => b.id)));
+  // Checkbox select all
+  function selectAll(targetIsChecked: boolean) {
+    if (targetIsChecked) {
+      setSelectedItems(new Set(banks.map((b) => b.id)));
     } else {
-      setselectedItems(new Set());
+      setSelectedItems(new Set());
     }
+  }
+
+  // Click Delete button
+  async function toggleDelete(selectedItems: Set<number>) {
+    // Check items set is not none
+    if (selectedItems.size === 0) {
+      message.error('Please select items!');
+      return;
+    }
+    // send request
+    const res = await fetch('/api/favorites', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bankIds: Array.from(selectedItems) }), // set -> array -> JSON
+    });
+    if (!res.ok) {
+      message.error('Delete failed');
+      throw new Error('Operation Failed');
+    }
+    // Get response
+    const data = await res.json(); //  { ok: true, count: ... }
+    setSelectedItems(new Set());
+    router.refresh(); // refresh page
+    message.success('Delete successfully');
+    return data;
   }
 
   return (
     <Card
       hoverable
-      title={topic}
-      style={{ width: '100%', minWidth: 360, maxWidth: 480 }}
+      title={
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <span
+            style={{
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis',
+              overflow: 'hidden',
+            }}
+          >
+            {topic}
+          </span>
+        </div>
+      }
+      style={{ width: '100%', minWidth: 360, maxWidth: 560 }}
+      styles={{
+        header: {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          minHeight: 48,
+          paddingInline: 16,
+        },
+      }}
       extra={
-        <Space size={12} align="center">
-          {isEditMode && (
+        isEditMode ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Checkbox
+              className="small-checkbox"
               indeterminate={isIndeterminate}
               checked={isAllChecked}
               onChange={(e) => selectAll(e.target.checked)}
             >
-              Select All
+              <span className="small-checkbox__label">All</span>
             </Checkbox>
-          )}
-        </Space>
+
+            <Popconfirm
+              title="Delete selected banks?"
+              description="Inrecoverable operation"
+              okText="Delete"
+              cancelText="Cancel"
+              okButtonProps={{ danger: true, size: 'small' }}
+              cancelButtonProps={{ size: 'small' }}
+              onConfirm={() => toggleDelete(selectedItems)}
+            >
+              <Button
+                type="text"
+                size="small"
+                danger
+                icon={<DeleteOutlined />}
+              />
+            </Popconfirm>
+          </div>
+        ) : null
       }
     >
       {banks.length ? (

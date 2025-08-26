@@ -13,14 +13,13 @@
  */
 
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import {
   insertBankFavorites,
-  deleteBankFavorites,
+  cancelBankFavorites,
   getBfIdByUidAndBid,
 } from '@/libs/db_bank_favorites';
-import { getUserIdBySession } from '@/libs/db_session';
-import { SESSION_COOKIE_NAME } from '@/config/constants';
+import { authSessionInServer } from '@/libs/utils/sessionUtils';
+import { logCall } from '@/libs/utils/logUtils';
 
 /**
  * POST:
@@ -33,12 +32,21 @@ export async function POST(
   req: Request,
   { params }: { params: { bankId: string } },
 ) {
-  console.log('=====[POST /api/banks/[bankId]/favorites] entered =====');
+  logCall();
   try {
+    //Authentication
+    const userId = await authSessionInServer();
+
+    if (!userId) {
+      return NextResponse.json(
+        { ok: false, error: 'Not logged in' },
+        { status: 401 },
+      );
+    }
+
     // Get bankId from url path
     const bankId = Number(params.bankId);
-    // console.log('[/api/banks/[bankId]/favorites]] bankId:', bankId);
-
+    // Get bankId
     const bankIdNum = Number(bankId);
     if (!Number.isFinite(bankIdNum) || bankIdNum <= 0) {
       // console.warn('[/api/banks/[bankId]/favorites]] invalid bankId:', bankId);
@@ -48,31 +56,12 @@ export async function POST(
       );
     }
 
-    const sid = cookies().get(SESSION_COOKIE_NAME)?.value ?? null;
-    // console.log('[/api/banks/[bankId]/favorites]] sid exists?', !!sid);
-    if (!sid) {
-      return NextResponse.json(
-        { ok: false, error: 'Not logged in' },
-        { status: 401 },
-      );
-    }
-
-    // Get userId
-    const userId = await getUserIdBySession(sid);
-    // console.log('[/api/banks/[bankId]/favorites]] userId:', userId);
-    if (!userId) {
-      return NextResponse.json(
-        { ok: false, error: 'Not logged in' },
-        { status: 401 },
-      );
-    }
-
     // DB Operation: Insert data
-    const res = await insertBankFavorites(userId, bankIdNum);
+    const id = await insertBankFavorites(userId, bankIdNum);
     // console.log('[/api/banks/[bankId]/favorites]] inserted id:', id);
 
     // Return reponse
-    return NextResponse.json({ ok: true, res });
+    return NextResponse.json({ ok: true, id });
   } catch (e: any) {
     console.error('[/api/banks/[bankId]/favorites][POST]: ', e);
     const msg = e?.message ?? 'Unknown error';
@@ -89,20 +78,11 @@ export async function DELETE(
   req: Request,
   { params }: { params: { bankId: string } },
 ) {
-  console.log('=====[DELETE /api/banks/[bankId]/favorites] entered =====');
+  logCall();
   try {
-    //authentication
-    const sid = cookies().get(SESSION_COOKIE_NAME)?.value ?? null;
-    if (!sid) {
-      return NextResponse.json(
-        { ok: false, error: 'Not logged in' },
-        { status: 401 },
-      );
-    }
+    //Authentication
+    const userId = await authSessionInServer();
 
-    // Query userId from db
-    const userId = await getUserIdBySession(sid);
-    // console.log('[/api/banks/[bankId]/favorites]] userId:', userId);
     if (!userId) {
       return NextResponse.json(
         { ok: false, error: 'Not logged in' },
@@ -122,7 +102,7 @@ export async function DELETE(
     }
 
     // delete data in db bank_favorites
-    const affected = await deleteBankFavorites(userId, bankId);
+    const affected = await cancelBankFavorites(userId, bankId);
     // return response
     return NextResponse.json({ ok: true, affected });
   } catch (e: any) {
@@ -142,20 +122,13 @@ export async function GET(
   req: Request,
   { params }: { params: { bankId: string } },
 ) {
-  console.log('=====[GET /api/banks/[bankId]/favorites] entered =====');
+  logCall();
   try {
     // Authentication
-    const sid = cookies().get(SESSION_COOKIE_NAME)?.value ?? null;
-    if (!sid) {
-      return NextResponse.json(
-        { ok: false, error: 'Not logged in' },
-        { status: 401 },
-      );
-    }
-
-    // Query userId from db
-    const userId = await getUserIdBySession(sid);
+    const userId = await authSessionInServer();
     // console.log('[/api/banks/[bankId]/favorites]] userId:', userId);
+
+    // Failed response
     if (!userId) {
       return NextResponse.json(
         { ok: false, error: 'Not logged in' },
@@ -179,7 +152,7 @@ export async function GET(
     // return response
     return NextResponse.json({ ok: true, isFavorited: favoriteBankId != null });
   } catch (e: any) {
-    console.error('[/api/banks/[bankId]/favorites] error:', e);
+    console.error(e);
     const msg = e?.message ?? 'Unknown error';
     return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }

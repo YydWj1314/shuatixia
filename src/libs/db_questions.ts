@@ -1,9 +1,11 @@
 import { Question } from '@/types/Exam'; // 确保这里字段名和可空性与 DB 一致：answer，不是 answerts
 import { createClient } from '@/libs/utils/supabase/app_router/server';
+import { logCall } from './utils/logUtils';
 
 export async function getQuestionsByBankId(
   bankId: number,
 ): Promise<Question[]> {
+  logCall();
   const sb = await createClient();
 
   const { data, error } = await sb

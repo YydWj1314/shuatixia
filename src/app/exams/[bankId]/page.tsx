@@ -13,7 +13,7 @@ export default async function Home({ params }: { params: { bankId: string } }) {
   // 为每一个 question添加bank 标签
   const newQuestions: QuestionWithBank[] = questions.map((item) => ({
     ...item,
-    bank: bank?.topic ?? '', // 防空
+    bank: bank?.title ?? '', // 防空
   }));
 
   return <ExamClient questions={newQuestions} />;

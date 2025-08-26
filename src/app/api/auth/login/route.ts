@@ -5,14 +5,16 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import {
-  CreateSession,
-  StoreSessionInResponse,
+  createSession,
+  storeSessionInResponse,
 } from '@/libs/utils/sessionUtils';
 import { sbAdmin } from '@/libs/sbAdmin';
-import { insertSession } from '@/libs/db_session';
+import { insertSession } from '@/libs/db_sessions';
+import { logCall } from '@/libs/utils/logUtils';
 
 export async function POST(req: Request) {
   try {
+    logCall();
     const { user_account, password } = await req.json();
 
     if (!user_account || !password) {
@@ -27,7 +29,7 @@ export async function POST(req: Request) {
       .maybeSingle();
 
     if (error) {
-      console.error('Supabase query error:', error);
+      console.error('Login error:', error);
       return NextResponse.json({ error: '服务器查询失败' }, { status: 500 });
     }
     if (!user || user.is_delete) {
@@ -44,18 +46,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: '密码错误' }, { status: 401 });
     }
 
-    // Login successfully, create cookie session
-    const res = NextResponse.json({ ok: true });
-    // session 插入 db 获取 id
-    const { sid, expiresAt } = CreateSession();
-    // store session into response
-    await StoreSessionInResponse(sid);
-    // insert session into db
-    const ssid = insertSession(sbAdmin, sid, user.id, expiresAt);
+    // Create cookie session(unHashed sid ) and store
+    const { sid, expiresAt } = createSession();
+    await storeSessionInResponse(sid);
 
-    return res;
+    // Insert session into db
+    const { hashedSid } = await insertSession(sbAdmin, sid, user.id, expiresAt);
+    console.log('[api/login]hash created:', hashedSid);
+
+    if (!hashedSid) {
+      return NextResponse.json({ error: '登录异常' }, { status: 500 });
+    }
+    return NextResponse.json({ ok: true });
   } catch (e) {
-    console.error('LOGIN_ERROR:', e);
+    console.error(e);
     return NextResponse.json({ error: '登录异常' }, { status: 500 });
   }
 }

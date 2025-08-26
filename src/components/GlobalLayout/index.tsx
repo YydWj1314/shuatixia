@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import type { MenuProps } from 'antd';
+import { User } from '@/types/User';
 import {
   Layout,
   Menu,
@@ -26,31 +27,25 @@ import { layoutStyles as s } from './layoutStyles';
 
 const { Header, Content, Footer } = Layout;
 
-type User = {
-  id: number;
-  username?: string;
-  role: 'user' | 'admin' | string;
-  account?: string;
-} | null;
-
 type Props = { children: React.ReactNode };
 
 const menus = [
-  { key: '/', label: <Link href="/">首页</Link> },
-  { key: '/my-banks', label: <Link href="/my-banks">我的题库</Link> },
-  { key: '/exam', label: <Link href="/exam">刷题</Link> },
+  { key: '/', label: <Link href="/">Home</Link> },
+  { key: '/my-banks', label: <Link href="/my-banks">MyBanks</Link> },
+  { key: '/questions', label: <Link href="/questions">Questions</Link> },
 ];
 
 export default function BasicLayout({ children }: Props) {
   const pathname = usePathname(); // get current url
   const router = useRouter();
-  const [user, setUser] = useState<User>(null);
+  const [user, setUser] = useState<User | null>(null);
   const { token } = theme.useToken();
   const year = new Date().getFullYear();
 
   // 拉 session 用户
   const refresh = useCallback(async () => {
     try {
+      // GET requeset
       const res = await fetch('/api/auth/me', {
         credentials: 'include',
       });
@@ -147,7 +142,7 @@ export default function BasicLayout({ children }: Props) {
           </Col>
 
           <Col>
-            {!user || !user.role ? (
+            {!user || !user.user_role ? (
               <Button
                 type="primary"
                 shape="round"
@@ -156,16 +151,16 @@ export default function BasicLayout({ children }: Props) {
               >
                 Login
               </Button>
-            ) : user.role === 'admin' ? (
+            ) : user.user_role === 'admin' ? (
               <Dropdown.Button
                 menu={{ items: adminItems }}
                 icon={<DownOutlined />}
               >
-                {user.username ?? 'Admin'}
+                {user.user_name ?? 'Admin'}
               </Dropdown.Button>
             ) : (
               <Dropdown.Button menu={{ items: commonItems }}>
-                <Space>{user.username ?? '无名侠客'}</Space>
+                <Space>{user.user_name ?? '无名侠客'}</Space>
               </Dropdown.Button>
             )}
           </Col>

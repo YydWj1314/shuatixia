@@ -1,9 +1,10 @@
 import { createClient } from '@/libs/utils/supabase/app_router/server';
 import { throwError } from './utils/errorUtils';
 import { sbAdmin } from './sbAdmin';
+import { logCall } from './utils/logUtils';
 
 /**
- * Get banks data by favoirte id 
+ * Get all banks data by bank_favoirtes id 
  * @param userId 
  * @returns 
  * [
@@ -19,6 +20,7 @@ import { sbAdmin } from './sbAdmin';
   ]
  */
 export async function listBankFavorites(userId: number) {
+  logCall();
   const sb = await createClient();
   const { data, error } = await sb
     .from('question_banks')
@@ -33,7 +35,7 @@ export async function listBankFavorites(userId: number) {
 
   // only need banks data
   if (error) {
-    console.error('[listBankFavorites]', error?.message);
+    console.error('[libs/db_bank_favorites]', error);
     throwError('Query db user_bank_favorites Failed');
   }
   const banksOnly = (data ?? []).map(
@@ -49,6 +51,7 @@ export async function listBankFavorites(userId: number) {
  * @param bank_id
  */
 export async function getBfIdByUidAndBid(userId: number, bankId: number) {
+  logCall();
   const sb = await createClient();
   const { data, error } = await sb
     .from('user_bank_favorites')
@@ -58,7 +61,7 @@ export async function getBfIdByUidAndBid(userId: number, bankId: number) {
     .maybeSingle();
 
   if (error) {
-    console.error('[getBfIdByUidAndBid]', error?.message);
+    console.error('[libs/db_bank_favorites]', error);
     throwError('Query db user_bank_favorites Failed');
   }
 
@@ -72,6 +75,7 @@ export async function getBfIdByUidAndBid(userId: number, bankId: number) {
  * @returns
  */
 export async function insertBankFavorites(userId: number, bankId: number) {
+  logCall();
   const { data, error } = await sbAdmin
     .from('user_bank_favorites')
     .insert([{ user_id: userId, bank_id: bankId }])
@@ -79,7 +83,7 @@ export async function insertBankFavorites(userId: number, bankId: number) {
     .single();
 
   if (error) {
-    console.error('[insertBankFavorites]', error?.message);
+    console.error('[libs/db_bank_favorites]', error);
     throwError('Insert user_bank_favorates Failed');
   }
 
@@ -92,10 +96,11 @@ export async function insertBankFavorites(userId: number, bankId: number) {
  * @param bankId
  * @returns
  */
-export async function deleteBankFavorites(
+export async function cancelBankFavorites(
   userId: number,
   bankId: number,
 ): Promise<number> {
+  logCall();
   const { count, error } = await sbAdmin
     .from('user_bank_favorites')
     .delete({ count: 'exact' })
@@ -103,8 +108,34 @@ export async function deleteBankFavorites(
     .eq('bank_id', bankId);
 
   if (error) {
-    console.error('[deleteBankFavorites]', error?.message);
+    console.error('[libs/db_bank_favorites]', error);
     throwError('Delete user_bank_favorates Failed');
+  }
+
+  return count ?? 0;
+}
+
+/**
+ * Batch delete user favorite banks
+ * @param userId
+ * @param bankIds
+ * @returns
+ */
+export async function batchDeleteBankFavorites(
+  userId: number,
+  bankIds: number[],
+): Promise<number> {
+  logCall();
+  // console.log('userId, bankId:', userId, bankIds);
+  const { count, error } = await sbAdmin
+    .from('user_bank_favorites')
+    .delete({ count: 'exact' })
+    .eq('user_id', userId)
+    .in('bank_id', bankIds);
+
+  if (error) {
+    console.error('[libs/db_bank_favorites]', error);
+    throwError('Delete Favorates Failed');
   }
 
   return count ?? 0;
