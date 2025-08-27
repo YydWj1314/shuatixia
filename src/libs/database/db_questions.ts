@@ -2,7 +2,8 @@ import { Question } from '@/types/Exams'; // 确保这里字段名和可空性�
 import { createClient } from '@/libs/utils/supabase/app_router/server';
 import { logCall } from '../utils/logUtils';
 import { throwError } from '../utils/errorUtils';
-import { QuestionForList } from '@/types/Questions';
+import { QuestionInShowList } from '@/types/Questions';
+import { sbAdmin } from '../utils/supabase/sbAdmin';
 
 export async function getQuestionsByBankId(
   bankId: number,
@@ -40,7 +41,7 @@ export async function getAllQuestions() {
 
   const { data, error } = await sb
     .from('questions')
-    .select('title, content, tags, answer')
+    .select('id, title, content, tags, answer')
     .eq('is_delete', false)
     .order('created_at', { ascending: false });
 
@@ -49,5 +50,5 @@ export async function getAllQuestions() {
     throwError('Query quesions failed');
   }
 
-  return data as QuestionForList[];
+  return data ?? [];
 }

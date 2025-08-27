@@ -46,7 +46,7 @@ function getBtnProps(opts: {
   return { type: 'default', danger: false };
 }
 
-function onToggleSave() {}
+function ToggleSave() {} //TODO}
 
 export default function ExamClient({ questions }: { questions: Question[] }) {
   const qn = questions.length;
@@ -61,7 +61,7 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
   const params = useParams(); // to get path parameters
   const bankId = Number(params.bankId);
 
-  // swr hooks
+  // Customed swr hooks
   const { isFavorited, isLoading, isValidating, toggleFavorite } =
     useBankFavorites(bankId);
 
@@ -204,7 +204,7 @@ export default function ExamClient({ questions }: { questions: Question[] }) {
                         size="small"
                         // icon={isSaved ? <StarFilled /> : <StarOutlined />}
                         icon={<StarOutlined />}
-                        onClick={onToggleSave}
+                        onClick={ToggleSave}
                       >
                         Save Question
                       </Button>

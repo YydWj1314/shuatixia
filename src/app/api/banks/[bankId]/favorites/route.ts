@@ -106,7 +106,7 @@ export async function DELETE(
     // return response
     return NextResponse.json({ ok: true, affected });
   } catch (e: any) {
-    console.error('[/api/banks/[bankId]/favorites] error:', e);
+    console.error('[/api/banks/[bankId]/favorites][DELETE] error:', e);
     const msg = e?.message ?? 'Unknown error';
     return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }
@@ -119,46 +119,39 @@ export async function DELETE(
  * @returns
  */
 export async function GET(
-  req: Request,
+  _req: Request,
   { params }: { params: { bankId: string } },
 ) {
   logCall();
+
   try {
-    // Authentication
+    // Auth
     const userId = await authSessionInServer();
-    // console.log('[api/me] userId: ', userId);
     if (!userId) {
       return NextResponse.json(
         { ok: false, error: 'Not logged in' },
-        { status: 401 },
+        { status: 401, headers: { 'Cache-Control': 'no-store' } },
       );
     }
 
-    // Failed response
-    if (!userId) {
-      return NextResponse.json(
-        { ok: false, error: 'Not logged in' },
-        { status: 401 },
-      );
-    }
-
-    // Get bankId from url path
+    // Validate bankId
     const bankId = Number(params.bankId);
-    const bankIdNum = Number(bankId);
-    if (!Number.isFinite(bankIdNum) || bankIdNum <= 0) {
-      // console.warn('[/api/banks/[bankId]/favorites]] invalid bankId:', bankId);
+    if (!Number.isFinite(bankId) || bankId <= 0) {
       return NextResponse.json(
         { ok: false, error: 'Invalid bankId' },
         { status: 400 },
       );
     }
 
-    // Query id in db
+    // DB query
     const favoriteBankId = await getBfIdByUidAndBid(userId, bankId);
-    // return response
-    return NextResponse.json({ ok: true, isFavorited: favoriteBankId != null });
+
+    return NextResponse.json(
+      { ok: true, isFavorited: favoriteBankId != null },
+      { status: 200, headers: { 'Cache-Control': 'no-store' } },
+    );
   } catch (e: any) {
-    console.error(e);
+    console.error('[/api/banks/[bankId]/favorites][GET] error:', e);
     const msg = e?.message ?? 'Unknown error';
     return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }

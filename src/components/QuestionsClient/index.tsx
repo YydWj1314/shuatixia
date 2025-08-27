@@ -5,15 +5,15 @@ import { useState } from 'react';
 import { StarOutlined, StarFilled } from '@ant-design/icons';
 import { Avatar, List, Space, Row, Col, Card, Button } from 'antd';
 import FilterHeader from '../FIlterHeader';
-import { QuestionForList } from '@/types/Questions';
+import { QuestionInShowList } from '@/types/Questions';
 import { useMemo, useCallback } from 'react';
+import { QuestionListItem } from '../QuestionListItem';
 
 export function QuestionShowList({
   questions,
 }: {
-  questions: QuestionForList[];
+  questions: QuestionInShowList[];
 }) {
-  const [isSaved, setIsSaved] = useState(false);
   const [serachMode, setSearchMode] = useState<'SINGLE' | 'MULTI'>('SINGLE');
   const [selectedTags, setSelectedTags] = useState(new Set<string>());
 
@@ -53,21 +53,6 @@ export function QuestionShowList({
     );
   }, [selectedTags]);
 
-  // TODO
-  async function toogleSave(questionId: number) {
-    const res = await fetch('api/questions/${questionId}/saved', {
-      method: 'POST',
-      headers: {
-        'Content-Type': '',
-      },
-      credentials: 'include',
-      body: JSON.stringify({ questionId }),
-    });
-
-    if (!res.ok) {
-    }
-  }
-
   return (
     <>
       {/* Header */}
@@ -89,40 +74,7 @@ export function QuestionShowList({
                 <b>Click question to search in GPT</b>
               </div>
             }
-            renderItem={(q) => (
-              <List.Item
-                style={{
-                  paddingBlock: 40, // 每项上下内边距
-                  position: 'relative', // 让子元素能 absolute
-                }}
-                key={q.id} //
-              >
-                {/* 内容部分 */}
-                <List.Item.Meta
-                  title={<a href="">{q.content}</a>}
-                  description={q.tags}
-                />
-                [Answer]: {q.answer}
-                {/* 右下角按钮 */}
-                <div style={{ position: 'absolute', bottom: 8, right: 16 }}>
-                  <Space>
-                    <Button
-                      type="text"
-                      icon={
-                        isSaved ? (
-                          <StarFilled style={{ color: '#faad14' }} />
-                        ) : (
-                          <StarOutlined />
-                        )
-                      }
-                      onClick={toogleSave}
-                    >
-                      {isSaved ? 'Saved' : 'Save'}
-                    </Button>
-                  </Space>
-                </div>
-              </List.Item>
-            )}
+            renderItem={(q) => <QuestionListItem key={q.id} question={q} />}
           />
         </Col>
 

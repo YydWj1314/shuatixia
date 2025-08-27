@@ -4,7 +4,7 @@ import { Question } from '@/types/Exams';
 import { authSessionInServer } from '@/libs/utils/sessionUtils';
 import { redirect } from 'next/navigation';
 import { getAllQuestions } from '@/libs/database/db_questions';
-import { QuestionForList } from '@/types/Questions';
+import { QuestionInShowList } from '@/types/Questions';
 
 export default async function QuestionsPage() {
   // Authentication & get user id
@@ -16,7 +16,7 @@ export default async function QuestionsPage() {
   }
 
   // Request
-  const questions: QuestionForList[] = await getAllQuestions();
+  const questions: QuestionInShowList[] = await getAllQuestions();
   // console.log(questions);
   return <QuestionShowList questions={questions} />;
 }

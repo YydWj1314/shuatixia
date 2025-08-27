@@ -13,7 +13,7 @@ export interface Question {
   is_delete: boolean; // bool
 }
 
-export interface QuestionForList {
+export interface QuestionInShowList {
   id: number; // int8
   title: string | null; // varchar
   content: string; // text

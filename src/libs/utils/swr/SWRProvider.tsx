@@ -10,10 +10,9 @@ export default function SWRProvider({ children }: { children: ReactNode }) {
     <SWRConfig
       value={{
         fetcher: globalFetcher, // default GET
-        revalidateOnMount: true,
-        revalidateOnFocus: true,
-        revalidateOnReconnect: true,
-        dedupingInterval: 1500,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        dedupingInterval: 3000,
       }}
     >
       {children}
