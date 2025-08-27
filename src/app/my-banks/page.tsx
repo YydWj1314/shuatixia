@@ -1,7 +1,7 @@
-import { listBankFavorites } from '@/libs/db_bank_favorites';
+import { listBankFavorites } from '@/libs/database/db_bank_favorites';
 import { authSessionInServer } from '@/libs/utils/sessionUtils';
 import MyBanksClient from '@/components/MyBanksClient';
-import { groupBy } from '@/libs/groupBy';
+import { groupBy } from '@/libs/utils/groupBy';
 import { Bank } from '@/types/Banks';
 import { redirect } from 'next/navigation';
 

@@ -1,9 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { throwError } from './utils/errorUtils';
+import { throwError } from '../utils/errorUtils';
 import { createClient } from '@/libs/utils/supabase/app_router/server';
-import { sbAdmin } from './sbAdmin';
-import { hashSession } from './utils/sessionUtils';
-import { logCall } from './utils/logUtils';
+import { sbAdmin } from '../utils/supabase/sbAdmin';
+import { hashSession } from '../utils/sessionUtils';
+import { logCall } from '../utils/logUtils';
 /**
  * Insert session into db
  * @param sbAdmin

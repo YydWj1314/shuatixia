@@ -1,7 +1,7 @@
 // app/api/auth/logout/route.ts
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { deleteSessionBySid } from '@/libs/db_sessions';
+import { deleteSessionBySid } from '@/libs/database/db_sessions';
 import { SESSION_COOKIE_NAME } from '@/config/constants';
 import { logCall } from '@/libs/utils/logUtils';
 

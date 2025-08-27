@@ -2,17 +2,40 @@
 'use client';
 import useSWR from 'swr';
 
-type Me = { id: number; user_account: string; user_role: string } | null;
+// API 返回格式
+type MeResponse = {
+  ok: boolean;
+  user: User | null;
+};
 
+// 用户对象
+type User = {
+  id: number;
+  user_account: string;
+  user_name: string;
+  user_role: string;
+  user_avatar?: string | null;
+  user_profile?: string | null;
+};
+
+/**
+ * Auth api in client
+ * by global swr GET fetcher
+ * @returns
+ */
 export function useMe() {
-  const { data, isLoading, error, mutate } = useSWR<Me>(
+  // global get fetch
+  const { data, isLoading, error, mutate } = useSWR<MeResponse | null>(
     '/api/auth/me',
-    async (u) => {
-      const r = await fetch(u, { credentials: 'include' });
-      if (!r.ok) return null; // 401 -> 未登录
-      return r.json();
+    {
+      revalidateOnFocus: false,
     },
-    { revalidateOnFocus: false },
   );
-  return { me: data, isLoading, error, mutate };
+
+  return {
+    me: data?.user ?? null,
+    isLoading,
+    error,
+    mutate,
+  };
 }

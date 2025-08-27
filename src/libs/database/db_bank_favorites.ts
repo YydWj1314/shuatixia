@@ -1,7 +1,7 @@
 import { createClient } from '@/libs/utils/supabase/app_router/server';
-import { throwError } from './utils/errorUtils';
-import { sbAdmin } from './sbAdmin';
-import { logCall } from './utils/logUtils';
+import { throwError } from '../utils/errorUtils';
+import { sbAdmin } from '../utils/supabase/sbAdmin';
+import { logCall } from '../utils/logUtils';
 
 /**
  * Get all banks data by bank_favoirtes id 

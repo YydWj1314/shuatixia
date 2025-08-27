@@ -1,7 +1,7 @@
 import { Question } from '@/types/Exams'; // 确保这里字段名和可空性与 DB 一致：answer，不是 answerts
 import { createClient } from '@/libs/utils/supabase/app_router/server';
-import { logCall } from './utils/logUtils';
-import { throwError } from './utils/errorUtils';
+import { logCall } from '../utils/logUtils';
+import { throwError } from '../utils/errorUtils';
 import { QuestionForList } from '@/types/Questions';
 
 export async function getQuestionsByBankId(

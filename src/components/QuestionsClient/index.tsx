@@ -2,14 +2,7 @@
 
 import React from 'react';
 import { useState } from 'react';
-import {
-  LikeOutlined,
-  MessageOutlined,
-  StarOutlined,
-  DownloadOutlined,
-  LikeFilled,
-  StarFilled,
-} from '@ant-design/icons';
+import { StarOutlined, StarFilled } from '@ant-design/icons';
 import { Avatar, List, Space, Row, Col, Card, Button } from 'antd';
 import FilterHeader from '../FIlterHeader';
 import { QuestionForList } from '@/types/Questions';
@@ -20,8 +13,7 @@ export function QuestionShowList({
 }: {
   questions: QuestionForList[];
 }) {
-  const [liked, setLiked] = useState(false);
-  const [favorited, setFavorited] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const [serachMode, setSearchMode] = useState<'SINGLE' | 'MULTI'>('SINGLE');
   const [selectedTags, setSelectedTags] = useState(new Set<string>());
 
@@ -61,6 +53,21 @@ export function QuestionShowList({
     );
   }, [selectedTags]);
 
+  // TODO
+  async function toogleSave(questionId: number) {
+    const res = await fetch('api/questions/${questionId}/saved', {
+      method: 'POST',
+      headers: {
+        'Content-Type': '',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ questionId }),
+    });
+
+    if (!res.ok) {
+    }
+  }
+
   return (
     <>
       {/* Header */}
@@ -88,7 +95,7 @@ export function QuestionShowList({
                   paddingBlock: 40, // 每项上下内边距
                   position: 'relative', // 让子元素能 absolute
                 }}
-                key={q.id}
+                key={q.id} //
               >
                 {/* 内容部分 */}
                 <List.Item.Meta
@@ -102,29 +109,15 @@ export function QuestionShowList({
                     <Button
                       type="text"
                       icon={
-                        liked ? (
-                          <LikeFilled style={{ color: '#1677ff' }} />
-                        ) : (
-                          <LikeOutlined />
-                        )
-                      }
-                      onClick={() => setLiked(!liked)}
-                    >
-                      {liked ? 'Liked' : 'Like'}
-                    </Button>
-
-                    <Button
-                      type="text"
-                      icon={
-                        favorited ? (
+                        isSaved ? (
                           <StarFilled style={{ color: '#faad14' }} />
                         ) : (
                           <StarOutlined />
                         )
                       }
-                      onClick={() => setFavorited(!favorited)}
+                      onClick={toogleSave}
                     >
-                      {favorited ? 'Saved' : 'Save'}
+                      {isSaved ? 'Saved' : 'Save'}
                     </Button>
                   </Space>
                 </div>

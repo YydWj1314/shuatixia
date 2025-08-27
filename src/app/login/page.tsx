@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Form, Button, Input, message } from 'antd';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { mutate } from 'swr';
 import './login.css';
 
 /**
@@ -20,6 +21,7 @@ export default function LoginPage() {
       setLoading(true);
       const res = await fetch('/api/auth/login', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
       });
@@ -29,6 +31,10 @@ export default function LoginPage() {
         message.error(data.error || '登录失败');
         return;
       }
+
+      // refresh cache
+      await mutate('/api/auth/me');
+
       message.success('登录成功');
       router.replace('/');
     } finally {

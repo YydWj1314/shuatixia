@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import crypto from 'crypto';
 import { SESSION_MAX_AGE_SEC, SESSION_COOKIE_NAME } from '@/config/constants';
 import { NextResponse } from 'next/server';
-import { getUserIdBySession } from '@/libs/db_sessions';
+import { getUserIdBySession } from '@/libs/database/db_sessions';
 import { throwError } from './errorUtils';
 
 interface InsertSessionResult {

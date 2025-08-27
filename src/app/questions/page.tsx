@@ -3,7 +3,7 @@ import { QuestionShowList } from '@/components/QuestionsClient';
 import { Question } from '@/types/Exams';
 import { authSessionInServer } from '@/libs/utils/sessionUtils';
 import { redirect } from 'next/navigation';
-import { getAllQuestions } from '@/libs/db_questions';
+import { getAllQuestions } from '@/libs/database/db_questions';
 import { QuestionForList } from '@/types/Questions';
 
 export default async function QuestionsPage() {

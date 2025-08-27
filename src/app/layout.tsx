@@ -1,7 +1,7 @@
 import './globals.css';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import AppShell from '../components/AppShell';
-import SWRProvider from '@/components/SWRProvider';
+import SWRProvider from '@/libs/utils/swr/SWRProvider';
 
 // server side
 export default function RootLayout({

@@ -1,11 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import type { MenuProps } from 'antd';
-import { User } from '@/types/Users';
 import {
   Layout,
   Menu,
@@ -21,10 +19,10 @@ import {
   UserOutlined,
   LogoutOutlined,
   SearchOutlined,
-  DownOutlined,
 } from '@ant-design/icons';
 import { layoutStyles as s } from './layoutStyles';
 import Banner from '../Banner';
+import { useMe } from '@/app/hooks/useMe';
 
 const { Header, Content, Footer } = Layout;
 
@@ -39,28 +37,12 @@ const menus = [
 export default function BasicLayout({ children }: Props) {
   const pathname = usePathname(); // get current url
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
   const { token } = theme.useToken();
   const year = new Date().getFullYear();
 
   // 拉 session 用户
-  const refresh = useCallback(async () => {
-    try {
-      // GET requeset
-      const res = await fetch('/api/auth/me', {
-        credentials: 'include',
-      });
-      if (!res.ok) return setUser(null);
-      const data = await res.json().catch(() => ({}));
-      setUser(data?.user ?? null);
-    } catch {
-      setUser(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    refresh(); // 路由变化时拉 /api/auth/userMe
-  }, [pathname, refresh]);
+  const { me, isLoading, mutate } = useMe();
+  // console.log('Global:', me);
 
   // 登录后通用菜单
   const commonItems: MenuProps['items'] = [
@@ -82,13 +64,13 @@ export default function BasicLayout({ children }: Props) {
           method: 'DELETE',
           credentials: 'include',
         });
-        setUser(null);
+        mutate(null, false);
         router.replace('/login');
       },
     },
   ];
 
-  // 管理员菜单
+  // 管理员菜单 TODO
   const adminItems: MenuProps['items'] = [
     { key: 'dashboard', label: 'Admin', onClick: () => router.push('/admin') },
     { type: 'divider' },
@@ -144,7 +126,13 @@ export default function BasicLayout({ children }: Props) {
             </Col>
 
             <Col>
-              {!user || !user.user_role ? (
+              {isLoading ? (
+                // 1. Loading
+                <Button type="primary" shape="round">
+                  Loadin...
+                </Button>
+              ) : !me ? (
+                // 2. 没有 me 或者没有 user_role => 未登录
                 <Button
                   type="primary"
                   shape="round"
@@ -153,16 +141,10 @@ export default function BasicLayout({ children }: Props) {
                 >
                   Login
                 </Button>
-              ) : user.user_role === 'admin' ? (
-                <Dropdown.Button
-                  menu={{ items: adminItems }}
-                  icon={<DownOutlined />}
-                >
-                  {user.user_name ?? 'Admin'}
-                </Dropdown.Button>
               ) : (
+                // 3. 有 me 且有 user_role => 已登录
                 <Dropdown.Button menu={{ items: commonItems }}>
-                  <Space>{user.user_name ?? '无名侠客'}</Space>
+                  <Space>{me.user_name ?? '无名侠客'}</Space>
                 </Dropdown.Button>
               )}
             </Col>

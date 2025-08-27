@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import {
   batchDeleteBankFavorites,
   getBfIdByUidAndBid,
-} from '@/libs/db_bank_favorites';
+} from '@/libs/database/db_bank_favorites';
 import { authSessionInServer } from '@/libs/utils/sessionUtils';
 import { logCall } from '@/libs/utils/logUtils';
 

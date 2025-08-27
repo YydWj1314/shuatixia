@@ -1,7 +1,7 @@
-import { createClient } from './utils/supabase/app_router/server';
+import { createClient } from '../utils/supabase/app_router/server';
 import { throwError } from '@/libs/utils/errorUtils';
 import type { UserGetById } from '@/types/Users';
-import { logCall } from './utils/logUtils';
+import { logCall } from '../utils/logUtils';
 
 export async function getUserById(
   userId: number | string,

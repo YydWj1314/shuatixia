@@ -8,8 +8,8 @@ import {
   createSession,
   storeSessionInResponse,
 } from '@/libs/utils/sessionUtils';
-import { sbAdmin } from '@/libs/sbAdmin';
-import { insertSession } from '@/libs/db_sessions';
+import { sbAdmin } from '@/libs/utils/supabase/sbAdmin';
+import { insertSession } from '@/libs/database/db_sessions';
 import { logCall } from '@/libs/utils/logUtils';
 
 export async function POST(req: Request) {

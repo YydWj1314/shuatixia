@@ -3,16 +3,13 @@
 
 import { SWRConfig } from 'swr';
 import type { ReactNode } from 'react';
+import { globalFetcher } from './fetcher';
 
 export default function SWRProvider({ children }: { children: ReactNode }) {
   return (
     <SWRConfig
       value={{
-        fetcher: async (url: string) => {
-          const res = await fetch(url, { credentials: 'include' });
-          if (!res.ok) throw new Error('network');
-          return res.json();
-        },
+        fetcher: globalFetcher, // default GET
         revalidateOnMount: true,
         revalidateOnFocus: true,
         revalidateOnReconnect: true,

@@ -28,7 +28,7 @@
 
 import { createClient } from '@/libs/utils/supabase/app_router/server';
 import { Bank } from '@/types/Banks';
-import { logCall } from './utils/logUtils';
+import { logCall } from '../utils/logUtils';
 /**
  *
  * @param limit

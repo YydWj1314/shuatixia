@@ -1,6 +1,6 @@
 import HomeClient from '@/components/HomeClient';
-import { getAllBanks } from '../libs/db_question_banks';
-import { groupBy } from '../libs/groupBy';
+import { getAllBanks } from '../libs/database/db_question_banks';
+import { groupBy } from '../libs/utils/groupBy';
 import { Bank } from '@/types/Banks';
 
 // Homepage：Server Component

@@ -23,3 +23,10 @@ export interface UserGetById {
   user_profile: string | null; // varchar (简介/描述)
   user_role: string | null; // varchar (user / admin 等)
 }
+
+export interface Me {
+  id: number | null;
+  user_name: string | null;
+  user_account: string | null;
+  user_role: string | null;
+}

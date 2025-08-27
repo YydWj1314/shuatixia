@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getUserById } from '@/libs/db_user';
+import { getUserById } from '@/libs/database/db_user';
 import { authSessionInServer } from '@/libs/utils/sessionUtils';
 import type { UserGetById } from '@/types/Users';
 import { logCall } from '@/libs/utils/logUtils';
