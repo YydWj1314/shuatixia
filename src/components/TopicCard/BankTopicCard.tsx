@@ -2,68 +2,32 @@
 
 import { Bank } from '@/types/Banks';
 import { Button, Card, Checkbox, Popconfirm, message } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function BankTopicCard({
-  topic, // groupKey
+  topic,
   banks,
   isEditMode,
+  selected, // selected id
+  onToggleOne, //  callback
+  onToggleAll, //  callback
 }: {
   topic: string;
   banks: Bank[];
   isEditMode: boolean;
+  selected: Set<number>;
+  onToggleOne: (id: number, checked: boolean) => void;
+  onToggleAll: (ids: number[], checked: boolean) => void;
 }) {
-  const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const total = banks.length;
-  const selectedCount = selectedItems.size;
+  const selectedCount = banks.filter((b) => selected.has(b.id)).length;
   const isAllChecked = total > 0 && selectedCount === total;
   const isIndeterminate = selectedCount > 0 && selectedCount < total;
-  const router = useRouter();
 
-  // Checkbox select one
-  function selectOne(id: number) {
-    const newSet = new Set(selectedItems);
-    newSet.has(id) ? newSet.delete(id) : newSet.add(id);
-    setSelectedItems(newSet);
-    return;
-  }
-
-  // Checkbox select all
-  function selectAll(targetIsChecked: boolean) {
-    if (targetIsChecked) {
-      setSelectedItems(new Set(banks.map((b) => b.id)));
-    } else {
-      setSelectedItems(new Set());
-    }
-  }
-
-  // Click Delete button
-  async function toggleDelete(selectedItems: Set<number>) {
-    // Check items set is not none
-    if (selectedItems.size === 0) {
-      message.error('Please select items!');
-      return;
-    }
-    // send request
-    const res = await fetch('/api/favorites', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bankIds: Array.from(selectedItems) }), // set -> array -> JSON
-    });
-    if (!res.ok) {
-      message.error('Delete failed');
-      throw new Error('Operation Failed');
-    }
-    // Get response
-    const data = await res.json(); //  { ok: true, count: ... }
-    setSelectedItems(new Set());
-    router.refresh(); // refresh page
-    message.success('Delete successfully');
-    return data;
-  }
+  const ids = banks.map((b) => b.id);
 
   return (
     <Card
@@ -99,27 +63,10 @@ export default function BankTopicCard({
               className="small-checkbox"
               indeterminate={isIndeterminate}
               checked={isAllChecked}
-              onChange={(e) => selectAll(e.target.checked)}
+              onChange={(e) => onToggleAll(ids, e.target.checked)} // callback
             >
               <span className="small-checkbox__label">All</span>
             </Checkbox>
-
-            <Popconfirm
-              title="Delete selected banks?"
-              description="Inrecoverable operation"
-              okText="Delete"
-              cancelText="Cancel"
-              okButtonProps={{ danger: true, size: 'small' }}
-              cancelButtonProps={{ size: 'small' }}
-              onConfirm={() => toggleDelete(selectedItems)}
-            >
-              <Button
-                type="text"
-                size="small"
-                danger
-                icon={<DeleteOutlined />}
-              />
-            </Popconfirm>
           </div>
         ) : null
       }
@@ -130,8 +77,8 @@ export default function BankTopicCard({
             <li key={b.id} title={b.title}>
               {isEditMode ? (
                 <Checkbox
-                  onChange={(e) => selectOne(b.id)}
-                  checked={selectedItems.has(b.id)}
+                  checked={selected.has(b.id)} // ✅ 受控
+                  onChange={(e) => onToggleOne(b.id, e.target.checked)} //  callback
                 >
                   {b.title}
                 </Checkbox>

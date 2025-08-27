@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Question } from '@/types/Exam';
+import { Question } from '@/types/Exams';
 import {
   Layout,
   Row,

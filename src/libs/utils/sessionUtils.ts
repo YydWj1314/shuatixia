@@ -52,17 +52,14 @@ export function hashSession(input: string): string {
  * Athenticate user by session id
  * @returns
  */
-export async function authSessionInServer(): Promise<number> {
+export async function authSessionInServer(): Promise<number | null> {
   const sid = cookies().get(SESSION_COOKIE_NAME)?.value ?? null;
   if (!sid) {
-    throwError('Get sessionId failed');
+    return null; // 未登录返回null
   }
   const hashedSid = hashSession(sid);
 
   const userId = await getUserIdBySession(hashedSid);
 
-  if (!userId) {
-    throwError('Not logged in');
-  }
-  return userId;
+  return userId ?? null;
 }

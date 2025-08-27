@@ -126,7 +126,13 @@ export async function GET(
   try {
     // Authentication
     const userId = await authSessionInServer();
-    // console.log('[/api/banks/[bankId]/favorites]] userId:', userId);
+    // console.log('[api/me] userId: ', userId);
+    if (!userId) {
+      return NextResponse.json(
+        { ok: false, error: 'Not logged in' },
+        { status: 401 },
+      );
+    }
 
     // Failed response
     if (!userId) {

@@ -3,6 +3,8 @@ import { List, Card } from 'antd';
 import Link from 'next/link';
 import { Bank } from '@/types/Banks';
 import TopicCard from '../TopicCard/HomeTopicCard';
+import styles from './Banner.module.css';
+import Banner from '../Banner';
 
 interface BankGroups {
   [groupKey: string]: Bank[];

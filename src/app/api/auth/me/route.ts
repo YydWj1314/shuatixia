@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUserById } from '@/libs/db_user';
 import { authSessionInServer } from '@/libs/utils/sessionUtils';
-import type { UserGetById } from '@/types/User';
+import type { UserGetById } from '@/types/Users';
 import { logCall } from '@/libs/utils/logUtils';
 
 export async function GET() {
@@ -10,6 +10,12 @@ export async function GET() {
   try {
     const userId = await authSessionInServer();
     // console.log('[api/me] userId: ', userId);
+    if (!userId) {
+      return NextResponse.json(
+        { ok: false, error: 'Not logged in' },
+        { status: 401 },
+      );
+    }
 
     const user: UserGetById | null = await getUserById(userId);
     // console.log('[api/me] user: ', user);

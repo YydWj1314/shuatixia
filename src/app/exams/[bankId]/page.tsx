@@ -1,7 +1,7 @@
 import ExamClient from '@/components/ExamClient';
 import { getBankById } from '@/libs/db_question_banks';
 import { getQuestionsByBankId } from '@/libs/db_questions';
-import { Question } from '@/types/Exam';
+import { Question } from '@/types/Exams';
 
 type QuestionWithBank = Question & { bank: string };
 

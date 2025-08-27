@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import type { MenuProps } from 'antd';
-import { User } from '@/types/User';
+import { User } from '@/types/Users';
 import {
   Layout,
   Menu,
@@ -24,6 +24,7 @@ import {
   DownOutlined,
 } from '@ant-design/icons';
 import { layoutStyles as s } from './layoutStyles';
+import Banner from '../Banner';
 
 const { Header, Content, Footer } = Layout;
 
@@ -117,66 +118,74 @@ export default function BasicLayout({ children }: Props) {
   );
 
   return (
-    <Layout style={s.layout}>
-      {/* 顶部栏 */}
-      <Header style={s.header}>
-        {/* 左：Logo + Title */}
-        <Link href="/" style={s.brand}>
-          <Image src="/assets/logo.svg" alt="logo" width={28} height={28} />
-          <span style={s.brandTitle}>ShuaTiXia</span>
-        </Link>
+    <>
+      <Layout>
+        {/* 顶部栏 */}
+        <Header style={s.header}>
+          {/* 左：Logo + Title */}
+          <Link href="/" style={s.brand}>
+            <Image src="/assets/logo.svg" alt="logo" width={28} height={28} />
+            <span style={s.brandTitle}>ShuaTiXia</span>
+          </Link>
 
-        {/* 中：导航菜单 */}
-        <Menu
-          mode="horizontal"
-          selectedKeys={[pathname]}
-          items={menus}
-          theme="light"
-          style={s.menu}
-        />
+          {/* 中：导航菜单 */}
+          <Menu
+            mode="horizontal"
+            selectedKeys={[pathname]}
+            items={menus}
+            theme="light"
+            style={s.menu}
+          />
 
-        {/* 右：搜索 + 登录/头像 */}
-        <Row gutter={[12, 12]} align="middle" wrap={false}>
-          <Col>
-            <SearchInput /> {/* 搜索框内部仍是 width:100% */}
-          </Col>
+          {/* 右：搜索 + 登录/头像 */}
+          <Row gutter={[12, 12]} align="middle" wrap={false}>
+            <Col>
+              <SearchInput /> {/* 搜索框内部仍是 width:100% */}
+            </Col>
 
-          <Col>
-            {!user || !user.user_role ? (
-              <Button
-                type="primary"
-                shape="round"
-                icon={<UserOutlined />}
-                onClick={() => router.push('/login')}
-              >
-                Login
-              </Button>
-            ) : user.user_role === 'admin' ? (
-              <Dropdown.Button
-                menu={{ items: adminItems }}
-                icon={<DownOutlined />}
-              >
-                {user.user_name ?? 'Admin'}
-              </Dropdown.Button>
-            ) : (
-              <Dropdown.Button menu={{ items: commonItems }}>
-                <Space>{user.user_name ?? '无名侠客'}</Space>
-              </Dropdown.Button>
-            )}
-          </Col>
-        </Row>
-      </Header>
+            <Col>
+              {!user || !user.user_role ? (
+                <Button
+                  type="primary"
+                  shape="round"
+                  icon={<UserOutlined />}
+                  onClick={() => router.push('/login')}
+                >
+                  Login
+                </Button>
+              ) : user.user_role === 'admin' ? (
+                <Dropdown.Button
+                  menu={{ items: adminItems }}
+                  icon={<DownOutlined />}
+                >
+                  {user.user_name ?? 'Admin'}
+                </Dropdown.Button>
+              ) : (
+                <Dropdown.Button menu={{ items: commonItems }}>
+                  <Space>{user.user_name ?? '无名侠客'}</Space>
+                </Dropdown.Button>
+              )}
+            </Col>
+          </Row>
+        </Header>
+      </Layout>
 
-      {/* 内容区（自适应撑开） */}
-      <Content style={s.content}>
-        <div style={s.contentInner}>{children}</div>
-      </Content>
+      {/* Banner */}
+      <Banner></Banner>
 
-      {/* 底部（贴底） */}
-      <Footer style={s.footer}>
-        <div>© {year} Made with curiosity, patience & love</div>
-        <div>by yyd</div>
-      </Footer>
-    </Layout>
+      {/* Content */}
+      <Layout style={s.layout}>
+        {/* 内容区（自适应撑开） */}
+        <Content style={s.content}>
+          <div style={s.contentInner}>{children}</div>
+        </Content>
+
+        {/* 底部（贴底） */}
+        <Footer style={s.footer}>
+          <div>© {year} Made with curiosity, patience & love</div>
+          <div>by yyd</div>
+        </Footer>
+      </Layout>
+    </>
   );
 }
