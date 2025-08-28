@@ -18,7 +18,6 @@ import { StarOutlined, StarFilled } from '@ant-design/icons';
 import type { CSSProperties } from 'react';
 import { useParams } from 'next/navigation';
 import './index.css';
-import { useBankFavorites } from '@/app/hooks/useBankFavorites';
 import { useQuestionSaved } from '@/app/hooks/useQuestionSaved';
 
 const { Header, Content } = Layout;
@@ -35,6 +34,8 @@ function getBtnProps(opts: {
 }): BtnProps {
   const { isCurrent, isMarked, isDone } = opts;
 
+  // const { data, isLoading, mutate } = useQuestionSaved();
+
   const doneStyle: CSSProperties = {
     backgroundColor: '#52c41a',
     color: '#fff',
@@ -47,15 +48,7 @@ function getBtnProps(opts: {
   return { type: 'default', danger: false };
 }
 
-function ToggleSave() {} //TODO}
-
-export default function ExamClient({
-  questions,
-  bankTitle,
-}: {
-  questions: Question[];
-  bankTitle: string;
-}) {
+export default function MyExamClient({ questions }: { questions: Question[] }) {
   const qn = questions.length;
 
   const [qi, setQi] = useState(0); // 当前题 index
@@ -66,14 +59,6 @@ export default function ExamClient({
 
   // from router: exams/[bankId]
   const params = useParams(); // to get path parameters
-  const bankId = Number(params.bankId);
-
-  // Customed swr hooks
-  const {
-    isFavorited,
-    isLoading: bLoading,
-    toggleFavorite,
-  } = useBankFavorites(bankId);
 
   // hide anwer when switch question
   useEffect(() => {
@@ -81,13 +66,9 @@ export default function ExamClient({
   }, [qi]);
 
   const curr = questions[qi];
-  const {
-    isSaved,
-    isLoading: qLoading,
-    toggleSave,
-  } = useQuestionSaved(Number(curr?.id));
+  const { isSaved, isLoading, toggleSave } = useQuestionSaved(Number(curr?.id));
 
-  // click to mark question
+  // Mark current question
   const toggleMark = () => {
     const id = Number(curr.id);
     setMarks((prev) => {
@@ -97,8 +78,8 @@ export default function ExamClient({
     });
   };
 
-  // mark answer when click mark button
-  const markAnswered = () => {
+  // Mark answered question green
+  const markDone = () => {
     const id = Number(curr.id);
     setAnswered((prev) => {
       const next = new Set(prev);
@@ -127,19 +108,7 @@ export default function ExamClient({
             width: '100%',
           }}
         >
-          <Col style={{ fontSize: 18, fontWeight: 600 }}>{bankTitle}</Col>
-
-          <Col>
-            <Button
-              className="content-button-favorite  "
-              icon={<StarOutlined />}
-              loading={bLoading}
-              type={isFavorited ? 'primary' : 'default'}
-              onClick={toggleFavorite}
-            >
-              {isFavorited ? 'Unfavorite' : 'Favorite'}
-            </Button>
-          </Col>
+          <Col style={{ fontSize: 18, fontWeight: 600 }}>Saved questions</Col>
         </Row>
       </Header>
 
@@ -172,7 +141,7 @@ export default function ExamClient({
                     type="primary"
                     onClick={() => {
                       setIsAnswerHidden(false);
-                      markAnswered(); // 点击显示答案即标记为“answered”
+                      markDone(); // 点击显示答案即标记为“answered”
                     }}
                   >
                     👉 Show Answer
@@ -219,7 +188,7 @@ export default function ExamClient({
                       <Button
                         type="text"
                         size="small"
-                        loading={qLoading}
+                        // icon={isSaved ? <StarFilled /> : <StarOutlined />}
                         icon={
                           isSaved ? (
                             <StarFilled style={{ color: '#faad14' }} />
@@ -228,6 +197,7 @@ export default function ExamClient({
                           )
                         }
                         onClick={toggleSave}
+                        loading={isLoading}
                       >
                         {isSaved ? 'Saved' : 'Save'}
                       </Button>

@@ -2,7 +2,6 @@
 
 import { useEffect, useCallback } from 'react';
 import { Provider } from 'react-redux';
-import store from '@/stores';
 import BasicLayout from '@/components/GlobalLayout';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -23,9 +22,5 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     router.refresh();
   }, [pathname]);
 
-  return (
-    <Provider store={store}>
-      <BasicLayout>{children}</BasicLayout>
-    </Provider>
-  );
+  return <BasicLayout>{children}</BasicLayout>;
 }

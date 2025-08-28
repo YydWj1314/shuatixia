@@ -1,20 +1,40 @@
 'use client';
-import { List, Row, Col, Switch, Popconfirm, Button, message } from 'antd';
+import {
+  List,
+  Row,
+  Col,
+  Switch,
+  Popconfirm,
+  Button,
+  message,
+  Card,
+  Space,
+  Divider,
+} from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import BankTopicCard from '../TopicCard/BankTopicCard';
-import { Bank } from '@/types/Banks';
+import { BankInShowList } from '@/types/Banks';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { QuestionInShowList } from '@/types/Questions';
+import { MyBankQuestionList } from './QuestionList';
+import Link from 'next/link';
 
-interface BankGroups {
-  // groupKey = topic
-  [groupKey: string]: Bank[];
+interface GroupedBanks {
+  // groupKey --> topic
+  [groupKey: string]: BankInShowList[];
 }
 
-export default function MyBanksClient({ items }: { items: BankGroups }) {
-  // 把 { [groupKey(topic)]: Bank[]...} obj
+export default function MyBanksClient({
+  banks,
+  questions,
+}: {
+  banks: GroupedBanks;
+  questions: QuestionInShowList[];
+}) {
+  // 把 { [groupKey(topic)]: Bank...} obj
   //  转成数组 [[topic, banks] ...]，便于 List 渲染
-  const bankGroupArr = Object.entries(items);
+  const bankGroupArr = Object.entries(banks);
   const [isEditMode, setIsEditMode] = useState(false);
   const router = useRouter();
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
@@ -69,8 +89,8 @@ export default function MyBanksClient({ items }: { items: BankGroups }) {
   }, []);
 
   return (
-    <>
-      {/* Button row */}
+    <Space direction="vertical" size={10} style={{ width: '100%' }}>
+      {/* Edit Button row */}
       <Row justify="end" gutter={14}>
         {/* delete button */}
         <Col>
@@ -110,9 +130,9 @@ export default function MyBanksClient({ items }: { items: BankGroups }) {
       </Row>
 
       {/* Content  */}
-      <Row justify="center">
+      <Card title="Favorite Banks">
         <List
-          grid={{ gutter: 36, xs: 1, sm: 1, md: 1, lg: 2 }}
+          grid={{ gutter: 30, xs: 1, sm: 1, md: 1, lg: 2 }}
           style={{
             maxWidth: 1188,
             margin: '0 auto',
@@ -138,7 +158,20 @@ export default function MyBanksClient({ items }: { items: BankGroups }) {
             );
           }}
         />
-      </Row>
-    </>
+      </Card>
+
+      <Card
+        title="Saved Questions"
+        extra={
+          <Space>
+            <Link href="/my-exam">Practice</Link>
+            <Divider type="vertical" />
+            <Link href="/questions">All</Link>
+          </Space>
+        }
+      >
+        <MyBankQuestionList questions={questions} isEditMode={isEditMode} />
+      </Card>
+    </Space>
   );
 }

@@ -1,0 +1,37 @@
+/* 让 Card 的 body 作为三段纵向布局容器 */
+.content-wrapper {
+  max-width: 1200;
+  margin: 16px auto;
+}
+
+.content-main-card .ant-card-body {
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.content-question {
+  flex: 1; /* 占满中间的剩余空间 */
+  overflow: auto; /* 题干过长滚动而不是挤压其它区域 */
+  min-height: 120px; /* 可选：给题干一个下限，减少抖动 */
+  max-height: 200px;
+}
+
+.content-show-answer {
+  display: flex;
+  justify-content: center;
+}
+
+/* 答案区一直占位，只切可见性 */
+.content-answer {
+  min-height: 120px; /* 固定占位，避免切换时高度变化 */
+  overflow: auto;
+  transition: opacity 0.2s ease;
+  margin-top: auto;
+}
+.content-answer.is-hidden {
+  opacity: 0;
+  visibility: hidden; /* 占位但不可见 */
+  pointer-events: none;
+}

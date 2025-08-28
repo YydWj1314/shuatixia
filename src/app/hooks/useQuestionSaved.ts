@@ -1,59 +1,73 @@
 'use client';
-import useSWR from 'swr';
-import { useMe } from './useMe';
+import useSWR, { mutate as globalMutate } from 'swr';
+import { useMemo, useCallback, useState } from 'react';
 
-type SavResp = { ok: boolean; isSaved: boolean };
+type IdListResp = { ok: boolean; ids: number[] };
 
-export function useQuestionSaved(questionId: number) {
-  console.log('======== useQuestionSaved  entered ========');
-  // console.log('[hooks/useQuestionSaved]:', questionId);
-  const { me } = useMe();
-  const uid = me?.id ?? 'anon';
+export function useQuestionSaved(questionId?: number) {
+  // 1) 全局只拉一次“已收藏ID列表”
+  const {
+    data: idList,
+    isLoading: idsLoading,
+    mutate: mutateIds,
+  } = useSWR<IdListResp>('/api/saved-ids', {
+    revalidateOnFocus: true,
+  });
 
-  const url = Number.isFinite(questionId)
-    ? `/api/questions/${questionId}/save`
-    : null;
+  // 2) 用 Set O(1) 判断是否已收藏
+  const ids = idList?.ids ?? [];
+  const set = useMemo(() => new Set(ids), [ids]);
+  const saved = Number.isFinite(questionId)
+    ? set.has(Number(questionId))
+    : false;
 
-  // console.log('[hooks/useQuestionSaved] url:', url);
+  // 4) 切换收藏：只打 POST/DELETE，并乐观更新 ID 列表
+  const [pending, setPending] = useState(false);
+  const isLoading = idsLoading || pending;
 
-  // GET request by global swr provider
-  const { data, mutate, isLoading, isValidating, error } = useSWR<SavResp>(
-    url ? [url, uid] : null, // 需要全局 fetcher 支持元组 key
-    { revalidateOnFocus: false }, // 可选
-  );
-  console.log('[hooks/useQuestionSaved] data:', data);
+  const toggleSave = useCallback(async () => {
+    if (!Number.isFinite(questionId) || pending) return;
+    const id = Number(questionId);
+    const next = !saved;
+    setPending(true);
 
-  async function toggleSave() {
-    if (!url) return;
-    if (!me) throw new Error('Not Logged In');
-
-    const next = !data?.isSaved;
-
-    await mutate(
-      async () => {
-        const res = await fetch(url, {
-          method: next ? 'POST' : 'DELETE',
-          credentials: 'include',
-        });
-        if (!res.ok) throw new Error('Operation Failed');
-        return { ok: true, isSaved: next };
+    // 乐观改本地 id 列表
+    await mutateIds(
+      (prev) => {
+        const curr = prev?.ids ?? [];
+        return next
+          ? { ok: true, ids: Array.from(new Set([id, ...curr])) }
+          : { ok: true, ids: curr.filter((x) => x !== id) };
       },
-      {
-        optimisticData: { ok: true, isSaved: next },
-        rollbackOnError: true,
-        revalidate: false,
-      },
+      { revalidate: false },
     );
 
-    await mutate(); // 再 GET 一次，校准服务端状态
-  }
+    try {
+      const res = await fetch(`/api/questions/${id}/save`, {
+        method: next ? 'POST' : 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('network');
 
-  return {
-    isSaved: !!data?.isSaved,
-    isLoading,
-    isValidating,
-    error,
-    toggleSave,
-    refresh: () => mutate(),
-  };
+      // 如有“我的收藏列表”接口，这里也触发一下重拉
+      // await globalMutate('/api/saved'); // 可选
+      // 或者直接重拉ID列表以校准
+      await mutateIds();
+    } catch (e) {
+      // 失败回滚
+      await mutateIds(
+        (prev) => {
+          const curr = prev?.ids ?? [];
+          return next
+            ? { ok: true, ids: curr.filter((x) => x !== id) }
+            : { ok: true, ids: Array.from(new Set([id, ...curr])) };
+        },
+        { revalidate: false },
+      );
+    } finally {
+      setPending(false);
+    }
+  }, [questionId, saved, pending, mutateIds]);
+
+  return { isSaved: saved, isLoading, toggleSave };
 }

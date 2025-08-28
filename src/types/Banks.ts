@@ -10,3 +10,11 @@ export type Bank = {
   updated_at: string;
   is_delete: boolean;
 };
+
+//id, title, topic, description
+export interface BankInShowList {
+  id: number;
+  title: string;
+  topic: string;
+  description: string | null;
+}

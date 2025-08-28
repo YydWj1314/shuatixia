@@ -2,8 +2,6 @@ import { Question } from '@/types/Exams'; // 确保这里字段名和可空性�
 import { createClient } from '@/libs/utils/supabase/app_router/server';
 import { logCall } from '../utils/logUtils';
 import { throwError } from '../utils/errorUtils';
-import { QuestionInShowList } from '@/types/Questions';
-import { sbAdmin } from '../utils/supabase/sbAdmin';
 
 export async function getQuestionsByBankId(
   bankId: number,
@@ -47,8 +45,44 @@ export async function getAllQuestions() {
 
   if (error) {
     console.error(error);
-    throwError('Query quesions failed');
+    throwError('Query questions failed');
   }
 
   return data ?? [];
+}
+
+/**
+ * Get questions by userId
+ * @returns
+ */
+
+export async function getSavedQuestionsByUserId(userId: number) {
+  const sb = await createClient();
+
+  const { data, error } = await sb
+    .from('user_question_saved')
+    .select(
+      `
+    question_id, created_at,
+    questions!user_question_saved_question_id_fkey (
+      id, title, content, tags, answer
+    )
+  `,
+    )
+    .eq('user_id', userId)
+    .eq('questions.is_delete', false)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+
+  /**
+ * raw data: [
+              { question_id: 1, 
+                questions: { id: 101, title: 'A'... } 
+              },
+              ...
+          ];
+   */
+
+  return (data ?? []).map((row: any) => row.questions).filter(Boolean);
 }

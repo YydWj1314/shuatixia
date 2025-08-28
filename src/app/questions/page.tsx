@@ -1,5 +1,5 @@
 import MyBanksClient from '@/components/MyBanksClient';
-import { QuestionShowList } from '@/components/QuestionsClient';
+import { QuestionClient } from '@/components/QuestionsClient';
 import { Question } from '@/types/Exams';
 import { authSessionInServer } from '@/libs/utils/sessionUtils';
 import { redirect } from 'next/navigation';
@@ -18,5 +18,5 @@ export default async function QuestionsPage() {
   // Request
   const questions: QuestionInShowList[] = await getAllQuestions();
   // console.log(questions);
-  return <QuestionShowList questions={questions} />;
+  return <QuestionClient questions={questions} />;
 }

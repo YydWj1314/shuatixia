@@ -2,11 +2,8 @@
 
 import { Bank } from '@/types/Banks';
 import { Button, Card, Checkbox, Popconfirm, message } from 'antd';
-
+import { BankInShowList } from '@/types/Banks';
 import Link from 'next/link';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-
 export default function BankTopicCard({
   topic,
   banks,
@@ -16,7 +13,7 @@ export default function BankTopicCard({
   onToggleAll, //  callback
 }: {
   topic: string;
-  banks: Bank[];
+  banks: BankInShowList[];
   isEditMode: boolean;
   selected: Set<number>;
   onToggleOne: (id: number, checked: boolean) => void;
@@ -45,7 +42,7 @@ export default function BankTopicCard({
           </span>
         </div>
       }
-      style={{ width: '100%', minWidth: 360, maxWidth: 560 }}
+      style={{ width: '100%', minWidth: 250, maxWidth: 560 }}
       styles={{
         header: {
           display: 'flex',
@@ -65,6 +62,7 @@ export default function BankTopicCard({
               checked={isAllChecked}
               onChange={(e) => onToggleAll(ids, e.target.checked)} // callback
             >
+              {/* All checkbox */}
               <span className="small-checkbox__label">All</span>
             </Checkbox>
           </div>

@@ -2,19 +2,22 @@ import ExamClient from '@/components/ExamClient';
 import { getBankById } from '@/libs/database/db_question_banks';
 import { getQuestionsByBankId } from '@/libs/database/db_questions';
 import { Question } from '@/types/Exams';
+import { notFound } from 'next/navigation';
 
-type QuestionWithBank = Question & { bank: string };
-
-export default async function Home({ params }: { params: { bankId: string } }) {
+// server
+export default async function ExamPage({
+  params,
+}: {
+  params: { bankId: string };
+}) {
   const bankId = Number(params.bankId);
-  const questions = await getQuestionsByBankId(bankId);
-  const bank = await getBankById(bankId);
+  if (!Number.isFinite(bankId) || bankId <= 0) notFound();
 
-  // 为每一个 question添加bank 标签
-  const newQuestions: QuestionWithBank[] = questions.map((item) => ({
-    ...item,
-    bank: bank?.title ?? '', // 防空
-  }));
+  const [questions, bank] = await Promise.all([
+    getQuestionsByBankId(bankId),
+    getBankById(bankId),
+  ]);
+  if (!bank) notFound();
 
-  return <ExamClient questions={newQuestions} />;
+  return <ExamClient questions={questions} bankTitle={bank.title ?? ''} />;
 }

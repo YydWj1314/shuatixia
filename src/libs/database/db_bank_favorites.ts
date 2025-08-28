@@ -19,18 +19,22 @@ import { logCall } from '../utils/logUtils';
     },{},{} ...
   ]
  */
-export async function listBankFavorites(userId: number) {
+export async function getBankFavoritesByUid(userId: number) {
   logCall();
   const sb = await createClient();
   const { data, error } = await sb
-    .from('question_banks')
-    .select('*, user_bank_favorites!inner(id, created_at)')
-    .eq('is_delete', false) // 只要未删除
-    .eq('user_bank_favorites.user_id', userId) // 过滤用户
+    .from('user_bank_favorites')
+    .select(
+      `bank_id,
+        question_banks!user_bank_favorites_bank_id_fkey(
+          id, title, topic, description
+        )
+      `,
+    )
+    .eq('question_banks.is_delete', false) // 只要未删除
+    .eq('user_id', userId) // 过滤用户
     .order('created_at', {
-      // 按关联表列排序
       ascending: false,
-      foreignTable: 'user_bank_favorites',
     });
 
   // only need banks data
@@ -38,11 +42,25 @@ export async function listBankFavorites(userId: number) {
     console.error('[libs/db_bank_favorites]', error);
     throwError('Query db user_bank_favorites Failed');
   }
-  const banksOnly = (data ?? []).map(
-    ({ user_bank_favorites, ...banks }) => banks,
-  );
 
-  return banksOnly;
+  /**
+  data: [
+          {
+            "bank_id": 123,                     
+            "question_banks": {                            
+              "id": 9,
+              "titile": "xxx",                     
+              "topic": "……",
+              "dexcription": "……"               
+            },
+            ...
+        ]
+   */
+  const banks = (data ?? [])
+    .map((row: any) => row.question_banks)
+    .filter(Boolean);
+
+  return banks;
 }
 
 /**
