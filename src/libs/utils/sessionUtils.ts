@@ -53,13 +53,16 @@ export function hashSession(input: string): string {
  * @returns
  */
 export async function authSessionInServer(): Promise<number | null> {
-  const sid = cookies().get(SESSION_COOKIE_NAME)?.value ?? null;
-  if (!sid) {
-    return null; // 未登录返回null
+  try {
+    const sid = cookies().get(SESSION_COOKIE_NAME)?.value;
+    if (!sid) return null;
+
+    const hashedSid = hashSession(sid);
+    // getUserIdBySession 内部请校验 expires_at > now()
+    const userId = await getUserIdBySession(hashedSid);
+    return userId ?? null;
+  } catch (err) {
+    console.error('[authSessionInServer] error:', err);
+    return null;
   }
-  const hashedSid = hashSession(sid);
-
-  const userId = await getUserIdBySession(hashedSid);
-
-  return userId ?? null;
 }

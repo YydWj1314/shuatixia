@@ -17,7 +17,7 @@ import {
 import { StarOutlined, StarFilled } from '@ant-design/icons';
 import type { CSSProperties } from 'react';
 import { useParams } from 'next/navigation';
-import './index.css';
+import styles from './index.module.css';
 import { useBankFavorites } from '@/app/hooks/useBankFavorites';
 import { useQuestionSaved } from '@/app/hooks/useQuestionSaved';
 
@@ -46,8 +46,6 @@ function getBtnProps(opts: {
   if (isDone) return { type: 'default', danger: false, style: doneStyle };
   return { type: 'default', danger: false };
 }
-
-function ToggleSave() {} //TODO}
 
 export default function ExamClient({
   questions,
@@ -145,13 +143,13 @@ export default function ExamClient({
 
       {/* 内容区 */}
       <Content>
-        <div className="content-wrapper">
+        <div className={styles.wrapper}>
           <Row gutter={24}>
             {/* 左侧：题目 + 答案 */}
             <Col xs={24} md={16}>
-              <Card className="content-main-card">
+              <Card className={styles.mainCard}>
                 <Row
-                  className="content-question"
+                  className={styles.question}
                   style={{
                     width: '100%',
                     alignContent: 'start',
@@ -161,7 +159,7 @@ export default function ExamClient({
                   {curr.content}
                 </Row>
 
-                <Row className="content-show-answer">
+                <Row className={styles.showAnswer}>
                   <Button
                     className={[
                       'content-button-answer',
@@ -239,7 +237,9 @@ export default function ExamClient({
 
                 {/* 答案 */}
                 <Row
-                  className={`content-answer ${isAnswerHidden ? 'is-hidden' : ''}`}
+                  className={[styles.answer, isAnswerHidden && styles.isHidden]
+                    .filter(Boolean)
+                    .join(' ')}
                   justify="start" // 横向靠左
                   align="middle" // 垂直居中
                   style={{ fontSize }}

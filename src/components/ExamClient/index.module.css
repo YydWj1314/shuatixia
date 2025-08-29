@@ -1,0 +1,42 @@
+/* 容器 */
+.wrapper {
+  max-width: 1200px; /* ← 别忘了 px */
+  margin: 16px auto;
+}
+
+/* 主卡片：只影响这个卡片里的 antd body */
+.mainCard :global(.ant-card-body) {
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* 题干区 */
+.question {
+  flex: 1;
+  overflow: auto;
+  min-height: 120px;
+  max-height: 200px;
+}
+
+/* “显示答案”按钮行 */
+.showAnswer {
+  display: flex;
+  justify-content: center;
+}
+
+/* 答案区：一直占位，只切可见性 */
+.answer {
+  min-height: 120px;
+  overflow: auto;
+  transition: opacity 0.2s ease;
+  margin-top: auto;
+}
+
+/* 是否隐藏答案（模块内单独 class，方便组合） */
+.isHidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}

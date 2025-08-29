@@ -18,7 +18,10 @@ export async function POST(req: Request) {
     const { user_account, password } = await req.json();
 
     if (!user_account || !password) {
-      return NextResponse.json({ error: '缺少账号或密码' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid account or password' },
+        { status: 400 },
+      );
     }
 
     // 用 service role 绕过 RLS 读取密码哈希
@@ -30,11 +33,14 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error('Login error:', error);
-      return NextResponse.json({ error: '服务器查询失败' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Query server failed' },
+        { status: 500 },
+      );
     }
     if (!user || user.is_delete) {
       return NextResponse.json(
-        { error: '账号不存在或已禁用' },
+        { error: 'inexistent or disabled account' },
         { status: 404 },
       );
     }
@@ -43,7 +49,7 @@ export async function POST(req: Request) {
     const ok = await bcrypt.compare(password, user.user_password);
     // login failed
     if (!ok) {
-      return NextResponse.json({ error: '密码错误' }, { status: 401 });
+      return NextResponse.json({ error: 'Wrong password' }, { status: 401 });
     }
 
     // Create cookie session(unHashed sid ) and store
@@ -52,14 +58,14 @@ export async function POST(req: Request) {
 
     // Insert session into db
     const { hashedSid } = await insertSession(sbAdmin, sid, user.id, expiresAt);
-    console.log('[api/login]hash created:', hashedSid);
+    // console.log('[api/login]hash created:', hashedSid);
 
     if (!hashedSid) {
-      return NextResponse.json({ error: '登录异常' }, { status: 500 });
+      return NextResponse.json({ error: 'Login failed' }, { status: 500 });
     }
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: '登录异常' }, { status: 500 });
+    return NextResponse.json({ error: 'Login failed' }, { status: 500 });
   }
 }

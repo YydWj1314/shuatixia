@@ -2,6 +2,7 @@ import { Question } from '@/types/Exams'; // 确保这里字段名和可空性�
 import { createClient } from '@/libs/utils/supabase/app_router/server';
 import { logCall } from '../utils/logUtils';
 import { throwError } from '../utils/errorUtils';
+import { QuestionInDetail } from '@/types/Questions';
 
 export async function getQuestionsByBankId(
   bankId: number,
@@ -49,6 +50,25 @@ export async function getAllQuestions() {
   }
 
   return data ?? [];
+}
+
+export async function getQuestionByQid(questionId: number) {
+  // 从数据库取题目
+  logCall();
+  const sb = await createClient();
+  const { data, error } = await sb
+    .from('questions')
+    .select('id, title, content, answer, tags, updated_at')
+    .eq('id', questionId)
+    .eq('is_delete', false)
+    .maybeSingle<QuestionInDetail>();
+
+  if (error) {
+    console.error(error);
+    throwError('Query questions failed');
+  }
+
+  return data ?? null;
 }
 
 /**
