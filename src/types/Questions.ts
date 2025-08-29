@@ -29,3 +29,10 @@ export interface QuestionInDetail {
   answer: string | null; // text
   updated_at: string; // timestamptz
 }
+
+export interface QuestionInTopSaved {
+  id: number; // int8
+  content: string | null;
+  tags: string[] | null;
+  saved_count: number;
+}

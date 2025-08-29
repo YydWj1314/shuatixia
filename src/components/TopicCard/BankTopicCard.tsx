@@ -55,7 +55,14 @@ export default function BankTopicCard({
       }}
       extra={
         isEditMode ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              marginLeft: 4,
+            }}
+          >
             <Checkbox
               className="small-checkbox"
               indeterminate={isIndeterminate}
@@ -75,7 +82,7 @@ export default function BankTopicCard({
             <li key={b.id} title={b.title}>
               {isEditMode ? (
                 <Checkbox
-                  checked={selected.has(b.id)} // ✅ 受控
+                  checked={selected.has(b.id)}
                   onChange={(e) => onToggleOne(b.id, e.target.checked)} //  callback
                 >
                   {b.title}

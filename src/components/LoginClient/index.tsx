@@ -46,7 +46,7 @@ export function LoginClient() {
           <Form.Item
             name="user_account"
             label="Account"
-            rules={[{ required: true, message: 'Please input your username!' }]}
+            rules={[{ required: true, message: 'Please input your email!' }]}
           >
             <Input placeholder="Email address" prefix={<UserOutlined />} />
           </Form.Item>

@@ -15,14 +15,11 @@ import {
   Space,
   theme,
 } from 'antd';
-import {
-  UserOutlined,
-  LogoutOutlined,
-  SearchOutlined,
-} from '@ant-design/icons';
+import { UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import { layoutStyles as s } from './layoutStyles';
 import Banner from '../Banner';
 import { useMe } from '@/app/hooks/useMe';
+import { SearchInput } from './SerachInput';
 
 const { Header, Content, Footer } = Layout;
 
@@ -77,28 +74,6 @@ export default function BasicLayout({ children }: Props) {
     { key: 'Logout', label: 'Admin' },
   ];
 
-  // 顶部右侧搜索输入
-  const SearchInput = () => (
-    <Row
-      aria-hidden
-      onMouseDown={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-      style={{
-        ...s.searchBox,
-        border: `1px solid ${token.colorBorder}`,
-      }}
-    >
-      <Input
-        style={s.searchInput}
-        prefix={<SearchOutlined style={{ color: token.colorTextQuaternary }} />}
-        placeholder="Search"
-        variant="borderless"
-      />
-    </Row>
-  );
-
   return (
     <>
       <Layout>
@@ -122,7 +97,7 @@ export default function BasicLayout({ children }: Props) {
           {/* 右：搜索 + 登录/头像 */}
           <Row gutter={[12, 12]} align="middle" wrap={false}>
             <Col>
-              <SearchInput /> {/* 搜索框内部仍是 width:100% */}
+              <SearchInput />
             </Col>
 
             <Col>
@@ -164,8 +139,10 @@ export default function BasicLayout({ children }: Props) {
 
         {/* 底部（贴底） */}
         <Footer style={s.footer}>
-          <div>© {year} Made with curiosity, patience & love</div>
-          <div>by yyd</div>
+          <div>
+            © {year} Made with curiosity, patience & love <br />
+            by yyd in California
+          </div>
         </Footer>
       </Layout>
     </>

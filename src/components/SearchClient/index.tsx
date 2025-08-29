@@ -7,16 +7,18 @@ import FilterHeader from '../FIlterHeader';
 import { QuestionInShowList, QuestionInTopSaved } from '@/types/Questions';
 import { useMemo, useCallback } from 'react';
 import QuestionListItem from './QuestionListItem';
-import TopSavedCard from './TopSavedCard';
+import { tokenize } from './hightlight';
+import { useSearchParams } from 'next/navigation';
 
-export function QuestionClient({
+export function SearchClient({
   questions,
-  topSaved,
 }: {
   questions: QuestionInShowList[];
-  topSaved: QuestionInTopSaved[];
 }) {
   const [selectedTags, setSelectedTags] = useState(new Set<string>());
+  const sp = useSearchParams();
+  const str = sp.get('str') ?? '';
+  const tokens = useMemo(() => tokenize(str), [str]);
 
   // Get tags from question list
   const allUniqueTags = useMemo(
@@ -63,7 +65,7 @@ export function QuestionClient({
       {/* Content */}
       <Row gutter={12}>
         {/* Right-- question contents*/}
-        <Col span={18}>
+        <Col span={24}>
           <List
             itemLayout="vertical"
             size="large"
@@ -74,13 +76,10 @@ export function QuestionClient({
                 <b>Click question to get details</b>
               </div>
             }
-            renderItem={(q) => <QuestionListItem key={q.id} question={q} />}
+            renderItem={(q) => (
+              <QuestionListItem key={q.id} question={q} tokens={tokens} />
+            )}
           />
-        </Col>
-
-        {/* Left-- side bar*/}
-        <Col span={6}>
-          <TopSavedCard topSaved={topSaved} />
         </Col>
       </Row>
     </>

@@ -5,6 +5,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import {
+  authSessionInServer,
   createSession,
   storeSessionInResponse,
 } from '@/libs/utils/sessionUtils';

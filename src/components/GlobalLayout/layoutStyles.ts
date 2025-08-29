@@ -4,7 +4,7 @@ type Styles = Record<string, CSSProperties>;
 
 /** 统一高度常量 */
 export const HEADER_HEIGHT = 64; // Header height
-export const FOOTER_HEIGHT = 56; // Footer height（可按需改）
+export const FOOTER_HEIGHT = 80; // Footer height（可按需改）
 
 export const layoutStyles: Styles = {
   /** 外层布局：撑满视口，高度不足时把页脚推到底部 */

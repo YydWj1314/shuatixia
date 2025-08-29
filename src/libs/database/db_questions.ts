@@ -92,9 +92,6 @@ export async function getSavedQuestionsByUserId(userId: number) {
     .eq('user_id', userId)
     .eq('questions.is_delete', false)
     .order('created_at', { ascending: false });
-
-  if (error) throw error;
-
   /**
  * raw data: [
               { question_id: 1, 
@@ -103,6 +100,68 @@ export async function getSavedQuestionsByUserId(userId: number) {
               ...
           ];
    */
-
+  if (error) {
+    console.error(error);
+    throwError('Get saved questions failed');
+  }
   return (data ?? []).map((row: any) => row.questions).filter(Boolean);
+}
+
+/**
+ *
+ * @param q serching string
+ */
+export async function searchQuestionsByStr(str: string) {
+  const sb = await createClient();
+
+  // 空串直接返回空，避免全表扫描
+  const q = str?.trim();
+  if (!q) return [];
+
+  // ① LIKE 通配
+  const pat = `%${escapeLike(q)}%`;
+  // ② 为 .or(...) 转义逗号
+  const v = escapeOrValue(pat);
+
+  let queryResult = sb
+    .from('questions')
+    .select('id, title, content, tags, answer')
+    .or(`title.ilike.${v},content.ilike.${v},answer.ilike.${v}`)
+    .order('id', { ascending: false });
+
+  const { data, error } = await queryResult;
+  if (error) {
+    console.error(error);
+    throwError('Search questions failed');
+  }
+  return data ?? [];
+}
+
+// 工具：转义 LIKE 的特殊字符
+function escapeLike(s: string) {
+  return s
+    .replaceAll('\\', '\\\\') // 先转义反斜杠
+    .replaceAll('%', '\\%')
+    .replaceAll('_', '\\_');
+}
+
+// 工具：转义 .or(...) 参数里的逗号
+function escapeOrValue(s: string) {
+  return s.replaceAll(',', '\\,');
+}
+
+/**
+ * Get to saved questions
+ * @param param0
+ * @returns
+ */
+export async function getTopSavedQuestions(limit: number) {
+  const sb = await createClient();
+  const { data, error } = await sb
+    .from('questions')
+    .select('id,content,tags,saved_count')
+    .order('saved_count', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return data ?? [];
 }
