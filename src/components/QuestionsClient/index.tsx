@@ -55,7 +55,7 @@ export function QuestionClient({
     return questions.filter(
       (q) => (q.tags ?? []).some((t) => selectedTags.has(t)), // tags exist in seletctedTags，return
     );
-  }, [selectedTags]);
+  }, [selectedTags, questions]);
 
   return (
     <>

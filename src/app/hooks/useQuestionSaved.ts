@@ -3,6 +3,7 @@ import useSWR, { mutate as globalMutate } from 'swr';
 import { useMemo, useCallback, useState } from 'react';
 
 type IdListResp = { ok: boolean; ids: number[] };
+const EMPTY_IDS: number[] = [];
 
 export function useQuestionSaved(questionId?: number) {
   // 1) 全局只拉一次“已收藏ID列表”
@@ -15,11 +16,11 @@ export function useQuestionSaved(questionId?: number) {
   });
 
   // 2) 用 Set O(1) 判断是否已收藏
-  const ids = idList?.ids ?? [];
+  const ids = useMemo(() => idList?.ids ?? EMPTY_IDS, [idList?.ids]);
   const set = useMemo(() => new Set(ids), [ids]);
-  const saved = Number.isFinite(questionId)
-    ? set.has(Number(questionId))
-    : false;
+
+  const qid = Number(questionId);
+  const saved = Number.isFinite(qid) && set.has(qid);
 
   // 4) 切换收藏：只打 POST/DELETE，并乐观更新 ID 列表
   const [pending, setPending] = useState(false);
