@@ -45,10 +45,8 @@ function getBtnProps(opts: {
 
 export default function ExamClient({
   questions,
-  bankTitle,
 }: {
   questions: QuestionInShowList[];
-  bankTitle: string;
 }) {
   const qn = questions.length;
   const [qi, setQi] = useState(0); // 当前题 index
@@ -104,7 +102,7 @@ export default function ExamClient({
       {/* 顶部 */}
       <Header className={styles.header}>
         <Row className={styles.headerInner}>
-          <Col className={styles.bankTitle}>{bankTitle}</Col>
+          <Col className={styles.bankTitle}>My questions</Col>
           <Col>
             <Button
               className="content-button-favorite"
