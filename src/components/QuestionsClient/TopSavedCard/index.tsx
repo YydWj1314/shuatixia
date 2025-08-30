@@ -3,6 +3,7 @@
 import { Card, List, Space, Typography } from 'antd';
 import { FireOutlined } from '@ant-design/icons';
 import type { QuestionInTopSaved } from '@/types/Questions';
+import { extractTitle } from '@/libs/utils/extractTitle';
 
 const { Paragraph, Text } = Typography;
 
@@ -33,7 +34,9 @@ export default function TopSavedCard({
                 ellipsis={{ rows: 1, tooltip: q.content }}
                 style={{ margin: 0, maxWidth: 560, fontWeight: 500 }}
               >
-                <a href={`/questions/${q.id}`}>{q.content ?? '(无标题)'}</a>
+                <a href={`/questions/${q.id}`}>
+                  {extractTitle(q.content ?? '(无标题)')}
+                </a>
               </Paragraph>
 
               {/* 右侧热度 */}

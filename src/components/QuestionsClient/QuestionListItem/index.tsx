@@ -5,6 +5,10 @@ import { List, Button, Space, Tag } from 'antd';
 import { StarOutlined, StarFilled } from '@ant-design/icons';
 import { useQuestionSaved } from '@/app/hooks/useQuestionSaved';
 import type { QuestionInShowList } from '@/types/Questions';
+import { extractTitle } from '@/libs/utils/extractTitle';
+import { Typography } from 'antd';
+
+const { Paragraph } = Typography;
 
 export default function QuestionListItem({
   question,
@@ -21,7 +25,9 @@ export default function QuestionListItem({
     >
       <List.Item.Meta
         title={
-          <Link href={`/questions/${question.id}`}>{question.content}</Link>
+          <Link href={`/questions/${question.id}`}>
+            {extractTitle(question.content)}
+          </Link>
         }
         description={
           Array.isArray(question.tags) ? (
@@ -38,7 +44,12 @@ export default function QuestionListItem({
 
       {/* 答案区：按需改样式/是否折叠 */}
       <div style={{ marginTop: 12 }}>
-        [Answer]: {question.answer ?? '（暂无）'}
+        <Paragraph
+          ellipsis={{ rows: 2, expandable: false }} // 最多两行，超出省略
+          style={{ marginBottom: 0 }}
+        >
+          {question.answer ?? '（暂无）'}
+        </Paragraph>
       </div>
 
       {/* 右下角收藏按钮 */}
