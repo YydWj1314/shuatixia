@@ -19,6 +19,7 @@ import type { CSSProperties } from 'react';
 import { useParams } from 'next/navigation';
 import './index.css';
 import { useQuestionSaved } from '@/app/hooks/useQuestionSaved';
+import { MarkdownRenderer } from '../MarkdownRenderer';
 
 const { Header, Content } = Layout;
 
@@ -127,7 +128,9 @@ export default function MyExamClient({ questions }: { questions: Question[] }) {
                     fontSize,
                   }}
                 >
-                  {curr.content}
+                  <MarkdownRenderer
+                    md={String(curr.content ?? '').replace(/\\n/g, '\n')}
+                  />
                 </Row>
 
                 <Row className="content-show-answer">
@@ -214,7 +217,9 @@ export default function MyExamClient({ questions }: { questions: Question[] }) {
                   align="middle" // 垂直居中
                   style={{ fontSize }}
                 >
-                  <div className="content-answer-text">{curr.answer}</div>
+                  <div className="content-answer-text">
+                    <MarkdownRenderer md={curr.answer ?? ''} />
+                  </div>
                 </Row>
               </Card>
             </Col>

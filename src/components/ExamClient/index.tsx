@@ -1,33 +1,29 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Question } from '@/types/Exams';
-import {
-  Layout,
-  Row,
-  Col,
-  Card,
-  Space,
-  Button,
-  Slider,
-  Badge,
-  Divider,
-  Flex,
-} from 'antd';
+import { Layout, Row, Col, Card, Space, Button, Slider, Badge } from 'antd';
 import { StarOutlined, StarFilled } from '@ant-design/icons';
 import type { CSSProperties } from 'react';
 import { useParams } from 'next/navigation';
 import styles from './index.module.css';
+
 import { useBankFavorites } from '@/app/hooks/useBankFavorites';
 import { useQuestionSaved } from '@/app/hooks/useQuestionSaved';
+import { MarkdownRenderer } from '../MarkdownRenderer';
+
+// 你的题目类型（按你项目里的为准）
+export type QuestionInShowList = {
+  id: number | string;
+  content?: string; // markdown
+  answer?: string; // markdown
+  tags?: string[];
+};
 
 const { Header, Content } = Layout;
 
 type BtnType = 'primary' | 'default';
 type BtnProps = { type: BtnType; danger: boolean; style?: CSSProperties };
 
-// 状态与单一事实源（SOT）
-// 统一计算按钮样式，解决颜色覆盖：当前(蓝) > 标记(红) > 已答(绿) > 默认(灰)
 function getBtnProps(opts: {
   isCurrent: boolean;
   isMarked: boolean;
@@ -51,41 +47,40 @@ export default function ExamClient({
   questions,
   bankTitle,
 }: {
-  questions: Question[];
+  questions: QuestionInShowList[];
   bankTitle: string;
 }) {
   const qn = questions.length;
-
   const [qi, setQi] = useState(0); // 当前题 index
   const [isAnswerHidden, setIsAnswerHidden] = useState(true);
-  const [fontSize, setFontSize] = useState(14);
+  const [fontSize, setFontSize] = useState(16);
   const [marks, setMarks] = useState<Set<number>>(new Set());
   const [answered, setAnswered] = useState<Set<number>>(new Set());
 
   // from router: exams/[bankId]
-  const params = useParams(); // to get path parameters
+  const params = useParams();
   const bankId = Number(params.bankId);
 
-  // Customed swr hooks
+  // Custom SWR hooks
   const {
     isFavorited,
     isLoading: bLoading,
     toggleFavorite,
   } = useBankFavorites(bankId);
 
-  // hide anwer when switch question
+  // 切题时自动隐藏答案
   useEffect(() => {
     setIsAnswerHidden(true);
   }, [qi]);
 
   const curr = questions[qi];
+
   const {
     isSaved,
     isLoading: qLoading,
     toggleSave,
   } = useQuestionSaved(Number(curr?.id));
 
-  // click to mark question
   const toggleMark = () => {
     const id = Number(curr.id);
     setMarks((prev) => {
@@ -95,7 +90,6 @@ export default function ExamClient({
     });
   };
 
-  // mark answer when click mark button
   const markAnswered = () => {
     const id = Number(curr.id);
     setAnswered((prev) => {
@@ -106,30 +100,14 @@ export default function ExamClient({
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout className={styles.fullHeightLayout}>
       {/* 顶部 */}
-      <Header
-        style={{
-          background: '#fff',
-          padding: '0 20px',
-          borderBottom: '1px solid #eee',
-        }}
-      >
-        <Row
-          style={{
-            maxWidth: 1400,
-            margin: '0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 16,
-            width: '100%',
-          }}
-        >
-          <Col style={{ fontSize: 18, fontWeight: 600 }}>{bankTitle}</Col>
-
+      <Header className={styles.header}>
+        <Row className={styles.headerInner}>
+          <Col className={styles.bankTitle}>{bankTitle}</Col>
           <Col>
             <Button
-              className="content-button-favorite  "
+              className="content-button-favorite"
               icon={<StarOutlined />}
               loading={bLoading}
               type={isFavorited ? 'primary' : 'default'}
@@ -142,50 +120,36 @@ export default function ExamClient({
       </Header>
 
       {/* 内容区 */}
-      <Content>
+      <Content className={styles.contentArea}>
         <div className={styles.wrapper}>
-          <Row gutter={24}>
+          <Row gutter={24} align="stretch">
             {/* 左侧：题目 + 答案 */}
             <Col xs={24} md={16}>
-              <Card className={styles.mainCard}>
-                <Row
-                  className={styles.question}
-                  style={{
-                    width: '100%',
-                    alignContent: 'start',
-                    fontSize,
-                  }}
-                >
-                  {curr.content}
-                </Row>
+              <Card className={styles.mainCard} bodyStyle={{ padding: 16 }}>
+                {/* 题干区：flex-grow + 内部滚动 */}
+                <div className={styles.questionPane} style={{ fontSize }}>
+                  <MarkdownRenderer md={curr?.content ?? ''} />
+                </div>
 
-                <Row className={styles.showAnswer}>
+                {/* 操作区：固定高度 */}
+                <div className={styles.actionBar}>
                   <Button
                     className={[
                       'content-button-answer',
-                      isAnswerHidden && 'content-button-answer--show',
+                      isAnswerHidden ? 'content-button-answer--show' : '',
                     ]
                       .filter(Boolean)
                       .join(' ')}
                     type="primary"
                     onClick={() => {
                       setIsAnswerHidden(false);
-                      markAnswered(); // 点击显示答案即标记为“answered”
+                      markAnswered();
                     }}
                   >
                     👉 Show Answer
                   </Button>
-                </Row>
 
-                <Row className="content-buttons">
-                  <Col
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      width: '100%',
-                    }}
-                  >
+                  <div className={styles.navBtns}>
                     <Space>
                       <Button
                         disabled={qi <= 0}
@@ -210,9 +174,10 @@ export default function ExamClient({
                         }
                         onClick={toggleMark}
                       >
-                        {marks.has(Number(curr.id)) ? 'Unmark ' : 'Mark'}
+                        {marks.has(Number(curr.id)) ? 'Unmark' : 'Mark'}
                       </Button>
                     </Space>
+
                     <Space>
                       <Button
                         type="text"
@@ -230,76 +195,65 @@ export default function ExamClient({
                         {isSaved ? 'Saved' : 'Save'}
                       </Button>
                     </Space>
-                  </Col>
+                  </div>
+                </div>
 
-                  <Row></Row>
-                </Row>
-
-                {/* 答案 */}
-                <Row
-                  className={[styles.answer, isAnswerHidden && styles.isHidden]
-                    .filter(Boolean)
-                    .join(' ')}
-                  justify="start" // 横向靠左
-                  align="middle" // 垂直居中
+                {/* 答案区：flex-grow + 内部滚动；隐藏时高度为 0 */}
+                <div
+                  className={`${styles.answerPane} ${isAnswerHidden ? styles.isHidden : ''}`}
                   style={{ fontSize }}
                 >
-                  <div className="content-answer-text">{curr.answer}</div>
-                </Row>
+                  {!isAnswerHidden && (
+                    <MarkdownRenderer md={curr?.answer ?? ''} />
+                  )}
+                </div>
               </Card>
             </Col>
 
-            {/* 右侧：答题卡 + 设置 */}
+            {/* 右侧：答题卡 + 设置（粘性吸顶） */}
             <Col xs={24} md={8}>
-              <Card
-                title="Records"
-                extra={<Badge status="success" text="Done" />}
-                style={{ marginBottom: 16 }}
-              >
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(6, 1fr)',
-                    gap: 8,
-                  }}
+              <div className={styles.rightSticky}>
+                <Card
+                  title="Records"
+                  extra={<Badge status="success" text="Done" />}
+                  style={{ marginBottom: 16 }}
+                  bodyStyle={{ paddingBottom: 8 }}
                 >
-                  {questions.map((q, index) => {
-                    const props = getBtnProps({
-                      isCurrent: index === qi,
-                      isMarked: marks.has(Number(q.id)),
-                      isDone: answered.has(Number(q.id)),
-                    });
-
-                    return (
-                      <Button
-                        key={q.id}
-                        size="small"
-                        {...props}
-                        onClick={() => setQi(index)}
-                      >
-                        {index + 1}
-                      </Button>
-                    );
-                  })}
-                </div>
-              </Card>
-
-              <Card title="Settings">
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  <div
-                    style={{ display: 'flex', justifyContent: 'space-between' }}
-                  ></div>
-                  <div>
-                    <div style={{ marginBottom: 8 }}>Font size</div>
-                    <Slider
-                      min={14}
-                      max={20}
-                      value={fontSize}
-                      onChange={setFontSize}
-                    />
+                  <div className={styles.gridAnswerSheet}>
+                    {questions.map((q, index) => {
+                      const props = getBtnProps({
+                        isCurrent: index === qi,
+                        isMarked: marks.has(Number(q.id)),
+                        isDone: answered.has(Number(q.id)),
+                      });
+                      return (
+                        <Button
+                          key={q.id}
+                          size="small"
+                          {...props}
+                          onClick={() => setQi(index)}
+                        >
+                          {index + 1}
+                        </Button>
+                      );
+                    })}
                   </div>
-                </Space>
-              </Card>
+                </Card>
+
+                <Card title="Settings">
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    <div>
+                      <div style={{ marginBottom: 8 }}>Font size</div>
+                      <Slider
+                        min={14}
+                        max={22}
+                        value={fontSize}
+                        onChange={setFontSize}
+                      />
+                    </div>
+                  </Space>
+                </Card>
+              </div>
             </Col>
           </Row>
         </div>

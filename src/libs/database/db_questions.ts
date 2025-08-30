@@ -11,24 +11,36 @@ export async function getQuestionsByBankId(
 
   const sb = await createClient();
 
-  const { data, error } = await sb
+  // const { data, error } = await sb
 
+  //   .from('question_bank_questions')
+  //   // 保证一对一关系返回的是单个对象（避免二维数组）
+  //   .select('questions!inner(id, title, content, tags, answer)') //fk inner join
+  //   .eq('question_bank_id', bankId)
+  //   .eq('questions.is_delete', false)
+  //   .order('question_id', { ascending: true })
+  //   // 明确告诉 TS 返回的是 { questions: Question }[]：
+  //   .returns<{ questions: Question }[]>();
+
+  const { data, error } = await sb
     .from('question_bank_questions')
-    // 保证一对一关系返回的是单个对象（避免二维数组）
-    .select('questions!inner(id, title, content, tags, answer)') //fk inner join
+    .select(
+      `
+    question_id, 
+    questions!question_bank_questions_question_id_fkey (
+      id, title, content, tags, answer
+    )
+  `,
+    )
     .eq('question_bank_id', bankId)
     .eq('questions.is_delete', false)
-    .order('question_id', { ascending: true })
-    // 明确告诉 TS 返回的是 { questions: Question }[]：
-    .returns<{ questions: Question }[]>();
-
+    .order('created_at', { ascending: false });
   if (error) {
     console.error(error);
     throwError('Query quesions failed');
   }
 
-  // data 形如：[{ questions: {...} }, ...] → 扁平化
-  return data.map(({ questions }) => questions);
+  return (data ?? []).map((row: any) => row.questions).filter(Boolean);
 }
 
 /**
@@ -95,7 +107,7 @@ export async function getSavedQuestionsByUserId(userId: number) {
   /**
  * raw data: [
               { question_id: 1, 
-                questions: { id: 101, title: 'A'... } 
+                questions: { id: 1, title: 'A'... } 
               },
               ...
           ];
