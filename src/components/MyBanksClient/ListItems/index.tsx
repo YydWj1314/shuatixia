@@ -21,7 +21,12 @@ export default function MyBankListItem({
 
   return (
     <List.Item key={question.id} style={{ paddingBlock: 12 }}>
-      <Row align="middle" justify="space-between" style={{ width: '100%' }}>
+      <Row
+        align="middle"
+        justify="space-between"
+        wrap={false}
+        style={{ width: '100%' }}
+      >
         {/* 左侧：标题 + 摘要 + 标签 */}
         <Col flex="auto" style={{ minWidth: 0 }}>
           <Tooltip title={question.title} mouseEnterDelay={0.2}>
@@ -45,7 +50,7 @@ export default function MyBankListItem({
               style={{ marginBottom: 8 }}
               ellipsis={{ rows: 2 }}
             >
-              {extractTitle(question.content ?? '')}
+              {question.content ?? ''}
             </Paragraph>
           )}
 
