@@ -41,7 +41,7 @@ export function SignUpClient() {
     <main className={styles.main}>
       <Card
         className={styles.card}
-        title={<div className={styles.header}>Register</div>}
+        title={<div className={styles.header}>Sign Up</div>}
       >
         <Form layout="vertical" onFinish={onFinish} requiredMark="optional">
           <Form.Item
@@ -67,7 +67,10 @@ export function SignUpClient() {
               { max: 20, message: '20 characters max' },
             ]}
           >
-            <Input placeholder="Your name" prefix={<UserOutlined />} />
+            <Input
+              placeholder="Nickname you prefer"
+              prefix={<UserOutlined />}
+            />
           </Form.Item>
 
           <Form.Item

@@ -13,6 +13,7 @@ export default function SWRProvider({ children }: { children: ReactNode }) {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
         dedupingInterval: 3000,
+        shouldRetryOnError: (err) => err?.status !== 401,
       }}
     >
       {children}
