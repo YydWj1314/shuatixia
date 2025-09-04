@@ -1,7 +1,7 @@
 'use client';
 import { Card } from 'antd';
 
-export default function QuestionDetailClient({
+export function QuestionDetailClient({
   content,
   answer,
   tags = [],
