@@ -2,7 +2,7 @@
 import { notFound } from 'next/navigation';
 import { getQuestionByQid } from '@/libs/database/db_questions';
 import MDXRenderer from '@/components/MDXRenderer';
-import { QuestionDetailClient } from '@/components/QuestionDetailClient';
+import { QuestionDetailClient } from '../../../components/QuestionDetailClient';
 
 type PageProps = { params: { questionId: string } };
 
