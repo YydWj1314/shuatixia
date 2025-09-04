@@ -1,36 +1,36 @@
 // app/questions/[id]/page.tsx
 import { notFound } from 'next/navigation';
-import { createClient } from '@/libs/utils/supabase/app_router/server';
-import type { Metadata } from 'next';
-import QuestionDetailClient from '@/components/QuestionDetailCLient';
 import { getQuestionByQid } from '@/libs/database/db_questions';
+import MDXRenderer from '@/components/MDXRenderer';
+import QuestionDetailClient from '@/components/QuestionDetailClient';
 
-// // // 可选：SEO
-// // export async function generateMetadata({
-// //   params,
-// // }: PageProps): Promise<Metadata> {
-// //   return {
-// //     title: `题目 ${params.id} - 学习平台`,
-// //   };
+type PageProps = { params: { questionId: string } };
+
+// 可选：SEO
+// export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+//   const id = Number(params.id);
+//   return { title: Number.isFinite(id) ? `题目 ${id} - 学习平台` : '题目 - 学习平台' };
 // }
 
-export default async function QuestionDetailPage({
-  params,
-}: {
-  params: { questionId: string };
-}) {
-  const questionId = Number(params.questionId); // get  url params
+export default async function QuestionDetailPage({ params }: PageProps) {
+  const questionId = Number(params.questionId);
+  // console.log('[questions/[questionId]]', params);
 
   if (!Number.isFinite(questionId)) {
-    return notFound();
+    notFound();
   }
 
-  // 从数据库取题目
   const question = await getQuestionByQid(questionId);
-
   if (!question) {
-    return notFound();
+    notFound();
   }
 
-  return <QuestionDetailClient question={question} />;
+  // console.log('[questions/[questionId]]', question);
+  return (
+    <QuestionDetailClient
+      content={<MDXRenderer md={question.content ?? ''} />}
+      answer={<MDXRenderer md={question.answer ?? ''} />}
+      tags={question.tags ?? []}
+    />
+  );
 }

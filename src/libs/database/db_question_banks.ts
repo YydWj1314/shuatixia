@@ -51,7 +51,7 @@ export async function getAllBanks(limit = 12): Promise<Bank[]> {
 }
 
 /**
- *
+ * Get bank data by bankId
  * @param id
  * @returns
  */

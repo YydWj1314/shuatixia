@@ -16,7 +16,9 @@ export default function QuestionListItem({
   question: QuestionInShowList;
   tokens?: string[];
 }) {
-  const { isSaved, isLoading, toggleSave } = useQuestionSaved(question.id);
+  const { isSaved, isLoading, toggleSave } = useQuestionSaved(
+    Number(question.id),
+  );
 
   return (
     <List.Item

@@ -1,23 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { Layout, Row, Col, Card, Space, Button, Slider, Badge } from 'antd';
 import { StarOutlined, StarFilled } from '@ant-design/icons';
 import type { CSSProperties } from 'react';
 import { useParams } from 'next/navigation';
 import styles from './index.module.css';
+import { QuestionInShowList } from '@/types/Questions';
 
 import { useBankFavorites } from '@/app/hooks/useBankFavorites';
 import { useQuestionSaved } from '@/app/hooks/useQuestionSaved';
-import { MarkdownRenderer } from '../MarkdownRenderer';
-
-// 你的题目类型（按你项目里的为准）
-export type QuestionInShowList = {
-  id: number | string;
-  content?: string; // markdown
-  answer?: string; // markdown
-  tags?: string[];
-};
 
 const { Header, Content } = Layout;
 
@@ -45,8 +37,12 @@ function getBtnProps(opts: {
 
 export default function ExamClient({
   questions,
+  contentNodes,
+  answerNodes,
 }: {
   questions: QuestionInShowList[];
+  contentNodes: ReactNode[];
+  answerNodes: ReactNode[];
 }) {
   const qn = questions.length;
   const [qi, setQi] = useState(0); // 当前题 index
@@ -126,7 +122,7 @@ export default function ExamClient({
               <Card className={styles.mainCard} bodyStyle={{ padding: 16 }}>
                 {/* 题干区：flex-grow + 内部滚动 */}
                 <div className={styles.questionPane} style={{ fontSize }}>
-                  <MarkdownRenderer md={curr?.content ?? ''} />
+                  {contentNodes[qi]}
                 </div>
 
                 {/* 操作区：固定高度 */}
@@ -201,9 +197,7 @@ export default function ExamClient({
                   className={`${styles.answerPane} ${isAnswerHidden ? styles.isHidden : ''}`}
                   style={{ fontSize }}
                 >
-                  {!isAnswerHidden && (
-                    <MarkdownRenderer md={curr?.answer ?? ''} />
-                  )}
+                  {!isAnswerHidden && answerNodes[qi]}
                 </div>
               </Card>
             </Col>

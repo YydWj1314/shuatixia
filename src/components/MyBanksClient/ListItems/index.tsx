@@ -16,7 +16,9 @@ export default function MyBankListItem({
   question: QuestionInShowList;
   isEditMode: boolean;
 }) {
-  const { isSaved, isLoading, toggleSave } = useQuestionSaved(question.id);
+  const { isSaved, isLoading, toggleSave } = useQuestionSaved(
+    Number(question.id),
+  );
   const tags: string[] = Array.isArray(question.tags) ? question.tags : [];
 
   return (

@@ -4,6 +4,7 @@ import { getQuestionsByBankId } from '@/libs/database/db_questions';
 import { authSessionInServer } from '@/libs/utils/sessionUtils';
 import { notFound } from 'next/navigation';
 import { redirect } from 'next/navigation';
+import MDXRenderer from '@/components/MDXRenderer';
 
 // server
 export default async function ExamPage({
@@ -25,5 +26,20 @@ export default async function ExamPage({
   ]);
   if (!bank) notFound();
 
-  return <ExamClient questions={questions} bankTitle={bank.title ?? ''} />;
+  //  在 server 端把每道题的 content/answer 渲染成 md React 节点：
+  const contentNodes = questions.map((q) => (
+    <MDXRenderer key={`c-${q.id}`} md={q.content ?? ''} />
+  ));
+  const answerNodes = questions.map((q) => (
+    <MDXRenderer key={`a-${q.id}`} md={q.answer ?? ''} />
+  ));
+
+  return (
+    <ExamClient
+      questions={questions}
+      bankTitle={bank.title}
+      contentNodes={contentNodes}
+      answerNodes={answerNodes}
+    />
+  );
 }

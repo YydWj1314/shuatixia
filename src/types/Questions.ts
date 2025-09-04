@@ -22,12 +22,11 @@ export interface QuestionInShowList {
 }
 
 export interface QuestionInDetail {
-  id: number; // int8
+  id: number | string; // int8
   title: string | null; // varchar
   content: string; // text
   tags: string[] | null; // jsonb（建议存 string[]）
   answer: string | null; // text
-  updated_at: string; // timestamptz
 }
 
 export interface QuestionInTopSaved {

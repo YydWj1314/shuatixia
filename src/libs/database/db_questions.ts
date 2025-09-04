@@ -11,17 +11,6 @@ export async function getQuestionsByBankId(
 
   const sb = await createClient();
 
-  // const { data, error } = await sb
-
-  //   .from('question_bank_questions')
-  //   // 保证一对一关系返回的是单个对象（避免二维数组）
-  //   .select('questions!inner(id, title, content, tags, answer)') //fk inner join
-  //   .eq('question_bank_id', bankId)
-  //   .eq('questions.is_delete', false)
-  //   .order('question_id', { ascending: true })
-  //   // 明确告诉 TS 返回的是 { questions: Question }[]：
-  //   .returns<{ questions: Question }[]>();
-
   const { data, error } = await sb
     .from('question_bank_questions')
     .select(

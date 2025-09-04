@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Form, Button, Input, message, Checkbox } from 'antd';
+import { Card, Form, Button, Input, message } from 'antd';
 import { LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 import styles from './page.module.css';
 

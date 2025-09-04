@@ -1,30 +1,32 @@
 'use client';
-import { QuestionInDetail } from '@/types/Questions';
 import { Card } from 'antd';
-import { MarkdownRenderer } from '../MarkdownRenderer';
 
 export default function QuestionDetailClient({
-  question,
+  content,
+  answer,
+  tags = [],
 }: {
-  question: QuestionInDetail;
+  content: React.ReactNode;
+  answer: React.ReactNode;
+  tags?: string[];
 }) {
   return (
-    <Card style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
-      {/* Question content */}
-      <section>
-        <MarkdownRenderer md={question.content ?? ''} />
-      </section>
-      {/* Tags */}
-      {question.tags && (
-        <div style={{ marginTop: 16 }}>
-          <b>Tags:</b> {question.tags.join(', ')}
-        </div>
-      )}
-      {/* answer */}
-      <section style={{ marginTop: 32 }}>
-        <h2>答案</h2>
-        <MarkdownRenderer md={question.answer ?? ''} />
-      </section>
-    </Card>
+    <>
+      <Card style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
+        <section>{content}</section>
+
+        {tags.length > 0 && (
+          <div style={{ marginTop: 16 }}>
+            <b>Tags:</b> {tags.join(', ')}
+          </div>
+        )}
+      </Card>
+      <Card style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
+        <section style={{ marginTop: 8 }}>
+          <h2>答案</h2>
+          {answer}
+        </section>
+      </Card>
+    </>
   );
 }
