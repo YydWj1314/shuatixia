@@ -4,6 +4,7 @@ import { getQuestionByQid } from '@/libs/database/db_questions';
 import MDXRenderer from '@/components/MDXRenderer';
 import QuestionDetailClient from '@/components/QuestionDetailClient';
 
+//
 type PageProps = { params: { questionId: string } };
 
 // 可选：SEO
